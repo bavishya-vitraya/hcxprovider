@@ -24,6 +24,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-amqp:2.7.4'
 	implementation 'net.sf.dozer:dozer:5.5.1'
+	implementation 'org.bouncycastle:bcprov-ext-jdk15to18:1.64'
+	implementation files('F:\\Vitraya\\HCX\\jwe-helper\\target\\jwe-helper-1.0-SNAPSHOT.jar')
+	implementation 'com.nimbusds:nimbus-jose-jwt:9.25.6'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
