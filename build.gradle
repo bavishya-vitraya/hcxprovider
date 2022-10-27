@@ -6,7 +6,7 @@ plugins {
 
 group = 'com.hcx'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.8'
+sourceCompatibility = '16'
 
 configurations {
 	compileOnly {
@@ -26,6 +26,7 @@ dependencies {
 	implementation 'net.sf.dozer:dozer:5.5.1'
 	implementation 'org.bouncycastle:bcprov-ext-jdk15to18:1.64'
 	implementation files('F:\\Vitraya\\HCX\\jwe-helper\\target\\jwe-helper-1.0-SNAPSHOT.jar')
+	implementation files('F:\\Vitraya\\HCX\\hcx-integrator-sdk-1.0.0.jar')
 	implementation 'com.nimbusds:nimbus-jose-jwt:9.25.6'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
