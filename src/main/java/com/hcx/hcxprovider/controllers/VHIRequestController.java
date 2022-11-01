@@ -1,7 +1,9 @@
 package com.hcx.hcxprovider.controllers;
 
+import com.hcx.hcxprovider.model.ClaimRequest;
 import com.hcx.hcxprovider.model.CoverageEligibilityRequest;
 import com.hcx.hcxprovider.model.PreAuthRequest;
+import com.hcx.hcxprovider.service.ClaimRequestService;
 import com.hcx.hcxprovider.service.CoverageEligibilityService;
 import com.hcx.hcxprovider.service.PreAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,8 @@ public class VHIRequestController {
     PreAuthService preAuthService;
     @Autowired
     CoverageEligibilityService coverageEligibilityService;
+    @Autowired
+    ClaimRequestService claimRequestService;
 
     @PostMapping(value = "/savePreAuthReq")
     public String savePreAuthRequest(@RequestBody PreAuthRequest preAuthRequest){
@@ -29,5 +33,9 @@ public class VHIRequestController {
         return coverageEligibilityService.saveCoverageEligibilityRequest(coverageEligibilityRequest);
     }
 
+    @PostMapping(value = "/saveClaimRequest")
+    public String saveClaimRequest(@RequestBody ClaimRequest claimRequest){
+        return claimRequestService.saveClaimRequest(claimRequest);
+    }
 
 }

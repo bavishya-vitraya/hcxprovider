@@ -7,8 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CoverageEligibilityDTO {
-
+public class ClaimRequestDTO {
     private String insurerCode;
     private String hospitalCode;
     private String reqType;

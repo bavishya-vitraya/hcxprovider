@@ -1,19 +1,16 @@
 package com.hcx.hcxprovider.model;
 
-import com.hcx.hcxprovider.dto.PreAuthDetails;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "preAuthRequests")
+@Document(collection = "claimrequests")
 @AllArgsConstructor
 @Data
-public class PreAuthRequest {
-@Id
+public class ClaimRequest {
     private String id;
-    private String hospitalCode;
     private String insurerCode;
+    private String hospitalCode;
+    private String hospitalName;
     private String requestType;
-    private PreAuthDetails preAuthReq;
 }

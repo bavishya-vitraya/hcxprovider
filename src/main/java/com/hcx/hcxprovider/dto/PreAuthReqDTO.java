@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PreAuthReqDTO {
-    private String reqId;
-    private String hospitalId;
+    private String insurerCode;
+    private String hospitalCode;
+    private String requestType;
+    private String requestId;
 }

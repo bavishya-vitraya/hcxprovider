@@ -3,7 +3,6 @@ package com.hcx.hcxprovider.service.impl;
 import com.hcx.hcxprovider.dto.CoverageEligibilityDTO;
 import com.hcx.hcxprovider.model.CoverageEligibilityRequest;
 import com.hcx.hcxprovider.repository.CoverageEligibilityRequestRepo;
-import com.hcx.hcxprovider.repository.PreAuthRequestRepo;
 import com.hcx.hcxprovider.service.CoverageEligibilityService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +21,6 @@ public class CoverageEligibilityServiceImpl implements CoverageEligibilityServic
     private String routingkey;
 
     @Autowired
-    PreAuthRequestRepo preAuthRequestRepo;
-
-    @Autowired
     CoverageEligibilityRequestRepo coverageEligibilityRequestRepo;
     @Autowired
     RabbitTemplate rabbitTemplate;
@@ -35,9 +31,11 @@ public class CoverageEligibilityServiceImpl implements CoverageEligibilityServic
         coverageEligibilityRequestRepo.save(coverageEligibilityRequest);
 
         CoverageEligibilityDTO coverageEligibilityDTO= new CoverageEligibilityDTO();
-        coverageEligibilityDTO.setRequestId(coverageEligibilityRequest.getRequestId());
-        coverageEligibilityDTO.setRecipientCode(coverageEligibilityRequest.getRecipientCode());
+        coverageEligibilityDTO.setRequestId(coverageEligibilityRequest.getId());
+        coverageEligibilityDTO.setInsurerCode(coverageEligibilityRequest.getInsurerCode());
+        coverageEligibilityDTO.setHospitalCode(coverageEligibilityRequest.getHospitalCode());
+        coverageEligibilityDTO.setReqType(coverageEligibilityRequest.getRequestType());
         rabbitTemplate.convertAndSend(exchange,routingkey,coverageEligibilityDTO);
-        return "Updated Successfully";
+        return "Coverage Eligibility request sent successfully";
     }
 }

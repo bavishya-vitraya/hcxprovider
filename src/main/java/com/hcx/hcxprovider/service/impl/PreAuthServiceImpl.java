@@ -2,16 +2,13 @@ package com.hcx.hcxprovider.service.impl;
 
 import com.hcx.hcxprovider.dto.PreAuthReqDTO;
 import com.hcx.hcxprovider.model.PreAuthRequest;
-import com.hcx.hcxprovider.repository.CoverageEligibilityRequestRepo;
 import com.hcx.hcxprovider.repository.PreAuthRequestRepo;
-import com.hcx.hcxprovider.service.CoverageEligibilityService;
 import com.hcx.hcxprovider.service.PreAuthService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Slf4j
 @Service
@@ -34,9 +31,13 @@ public class PreAuthServiceImpl implements PreAuthService {
     @Override
    public String savePreAuthRequest( PreAuthRequest preAuthRequest){
         preAuthRequestRepo.save(preAuthRequest);
-        PreAuthReqDTO preAuthReqDTO = new PreAuthReqDTO(preAuthRequest.getId(),preAuthRequest.getHospital_id());
-       log.info("preAuthReqDTO {}",preAuthReqDTO);
+        PreAuthReqDTO preAuthReqDTO = new PreAuthReqDTO();
+        preAuthReqDTO.setRequestId(preAuthRequest.getId());
+        preAuthReqDTO.setRequestType(preAuthRequest.getRequestType());
+        preAuthReqDTO.setHospitalCode(preAuthRequest.getHospitalCode());
+        preAuthReqDTO.setInsurerCode(preAuthRequest.getInsurerCode());
+        log.info("preAuthReqDTO {}",preAuthReqDTO);
         rabbitTemplate.convertAndSend(exchange,routingkey,preAuthReqDTO);
-        return "Updated PreAuth Successfully";
+        return "PreAuth request sent successfully";
     }
 }

@@ -7,6 +7,7 @@ import io.hcxprotocol.utils.Operations;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -18,7 +19,7 @@ import java.util.Map;
 @Service
 public class ListenerServiceImpl implements ListenerService {
 
-    @Value("${privateKey}")
+    @Value("classpath:resources/keys/vitraya-mock-provider-private-key.pem")
     String privateKeyPath;
 
     @Value("${protocolBasePath}")
@@ -39,10 +40,12 @@ public class ListenerServiceImpl implements ListenerService {
     @Value("${igUrl}")
     String igUrl;
 
+    @Value("classpath:resources/input/message.txt")
+    String payloadPath;
 
     public Map<String, Object> setConfig() throws IOException {
         Map<String, Object> config = new HashMap<String, Object>();
-        File file = new File(privateKeyPath);
+        File file = new ClassPathResource("keys/vitraya-mock-provider-private-key.pem").getFile();
         String privateKey= FileUtils.readFileToString(file);
         config.put("protocolBasePath", protocolBasePath);
         config.put("authBasePath", authBasePath);
@@ -56,8 +59,8 @@ public class ListenerServiceImpl implements ListenerService {
 
     @Override
     public boolean hcxGenerate() throws Exception {
-        String payloadPath="C:\\Users\\flora\\OneDrive\\Documents\\keys\\message.txt";
-        File payloadFile= new File(payloadPath);
+
+        File payloadFile= new ClassPathResource("input/message.txt").getFile();
         String payload=FileUtils.readFileToString(payloadFile);
 
         HCXIntegrator.init(setConfig());
