@@ -1,18 +1,21 @@
-package com.hcx.hcxprovider.controllers;
+package com.hcx.hcxprovider.service.impl;
 
 import com.hcx.hcxprovider.dto.PreAuthReqDTO;
 import com.hcx.hcxprovider.model.PreAuthRequest;
+import com.hcx.hcxprovider.repository.CoverageEligibilityRequestRepo;
 import com.hcx.hcxprovider.repository.PreAuthRequestRepo;
+import com.hcx.hcxprovider.service.CoverageEligibilityService;
+import com.hcx.hcxprovider.service.PreAuthService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-public class preAuthRequestController {
+@Slf4j
+@Service
+public class PreAuthServiceImpl implements PreAuthService {
     @Value("${queue.name}")
     String queueName;
 
@@ -24,17 +27,16 @@ public class preAuthRequestController {
 
     @Autowired
     PreAuthRequestRepo preAuthRequestRepo;
+
     @Autowired
     RabbitTemplate rabbitTemplate;
 
-    @PostMapping(value = "/savePreAuthReq")
-    public String savePreAuthRequest(@RequestBody PreAuthRequest preAuthRequest){
+    @Override
+   public String savePreAuthRequest( PreAuthRequest preAuthRequest){
         preAuthRequestRepo.save(preAuthRequest);
         PreAuthReqDTO preAuthReqDTO = new PreAuthReqDTO(preAuthRequest.getId(),preAuthRequest.getHospital_id());
-        System.out.println(preAuthReqDTO);
+       log.info("preAuthReqDTO {}",preAuthReqDTO);
         rabbitTemplate.convertAndSend(exchange,routingkey,preAuthReqDTO);
-        return preAuthRequest.getId();
-
+        return "Updated PreAuth Successfully";
     }
-
 }
