@@ -35,7 +35,7 @@ public class PreAuthServiceImpl implements PreAuthService {
         PreAuthReqDTO preAuthReqDTO = new PreAuthReqDTO();
         preAuthReqDTO.setRequestId(preAuthRequest.getId());
         preAuthReqDTO.setRequestType(preAuthRequest.getRequestType());
-        preAuthReqDTO.setHospitalCode(preAuthRequest.getHospitalCode());
+        preAuthReqDTO.setHospitalCode(preAuthRequest.getSenderCode());
         preAuthReqDTO.setInsurerCode(preAuthRequest.getInsurerCode());
         log.info("preAuthReqDTO {} ",preAuthReqDTO);
         rabbitTemplate.convertAndSend(exchange,routingkey,preAuthReqDTO);
