@@ -31,13 +31,14 @@ public class PreAuthServiceImpl implements PreAuthService {
     @Override
    public String savePreAuthRequest( PreAuthRequest preAuthRequest){
         preAuthRequestRepo.save(preAuthRequest);
+        log.info("preAuth  req saved");
         PreAuthReqDTO preAuthReqDTO = new PreAuthReqDTO();
         preAuthReqDTO.setRequestId(preAuthRequest.getId());
         preAuthReqDTO.setRequestType(preAuthRequest.getRequestType());
         preAuthReqDTO.setHospitalCode(preAuthRequest.getHospitalCode());
         preAuthReqDTO.setInsurerCode(preAuthRequest.getInsurerCode());
-        log.info("preAuthReqDTO {}",preAuthReqDTO);
+        log.info("preAuthReqDTO {} ",preAuthReqDTO);
         rabbitTemplate.convertAndSend(exchange,routingkey,preAuthReqDTO);
-        return "PreAuth request sent successfully";
+        return "PreAuth request pushed to Queue";
     }
 }

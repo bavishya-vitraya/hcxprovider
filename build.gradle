@@ -26,8 +26,14 @@ dependencies {
 	implementation 'net.sf.dozer:dozer:5.5.1'
 	implementation 'org.slf4j:slf4j-api:2.0.3'
 	implementation 'org.bouncycastle:bcprov-ext-jdk15to18:1.64'
-	implementation files('F:\\Vitraya\\HCX\\hcx-integrator-sdk-1.0.0.jar')
+	implementation files('C:\\Users\\flora\\OneDrive\\Documents\\hcx-sdk\\hcx-integrator-sdk-1.0.0.jar')
 	compileOnly 'org.projectlombok:lombok'
+	implementation "jakarta.xml.bind:jakarta.xml.bind-api:2.3.2"
+	implementation "org.glassfish.jaxb:jaxb-runtime:2.3.2"
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.security:spring-security-crypto:5.7.5'
+	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+	testImplementation 'org.springframework.security:spring-security-test'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.amqp:spring-rabbit-test'
