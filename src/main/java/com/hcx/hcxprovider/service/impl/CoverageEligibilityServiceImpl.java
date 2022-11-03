@@ -36,7 +36,7 @@ public class CoverageEligibilityServiceImpl implements CoverageEligibilityServic
         coverageEligibilityDTO.setRequestId(coverageEligibilityRequest.getId());
         coverageEligibilityDTO.setInsurerCode(coverageEligibilityRequest.getInsurerCode());
         coverageEligibilityDTO.setHospitalCode(coverageEligibilityRequest.getHospitalCode());
-        coverageEligibilityDTO.setReqType(coverageEligibilityRequest.getRequestType());
+        coverageEligibilityDTO.setRequestType(coverageEligibilityRequest.getRequestType());
         rabbitTemplate.convertAndSend(exchange,routingkey,coverageEligibilityDTO);
         return "Coverage Eligibility request sent successfully";
     }

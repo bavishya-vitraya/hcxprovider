@@ -26,7 +26,6 @@ dependencies {
 	implementation 'net.sf.dozer:dozer:5.5.1'
 	implementation 'org.slf4j:slf4j-api:2.0.3'
 	implementation 'org.bouncycastle:bcprov-ext-jdk15to18:1.64'
-	implementation files('C:\\Users\\flora\\OneDrive\\Documents\\hcx-sdk\\hcx-integrator-sdk-1.0.0.jar')
 	compileOnly 'org.projectlombok:lombok'
 	implementation "jakarta.xml.bind:jakarta.xml.bind-api:2.3.2"
 	implementation "org.glassfish.jaxb:jaxb-runtime:2.3.2"

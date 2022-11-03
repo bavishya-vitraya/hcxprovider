@@ -11,6 +11,6 @@ public class CoverageEligibilityDTO {
 
     private String insurerCode;
     private String hospitalCode;
-    private String reqType;
+    private String requestType;
     private String requestId;
 }

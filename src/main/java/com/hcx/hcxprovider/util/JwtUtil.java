@@ -1,6 +1,5 @@
 package com.hcx.hcxprovider.util;
 
-import com.nimbusds.jwt.JWTClaimsSet;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -11,8 +10,6 @@ import org.springframework.stereotype.Component;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -41,7 +38,7 @@ public class JwtUtil implements Serializable {
     }
 
     public String generateToken(UserDetails userDetails){
-         return Jwts.builder().setSubject(userDetails.getUsername()).setIssuer("Joshima")
+         return Jwts.builder().setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(24)))
                 .signWith(SignatureAlgorithm.HS512,secret.getBytes(StandardCharsets.UTF_8)).compact();
     }
