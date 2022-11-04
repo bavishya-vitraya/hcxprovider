@@ -18,6 +18,6 @@ public class AdditionalDataDTO {
     private String ipNumber;
     private String dateOfAdmission;
     private List<TreatingDoctorDetailsDTO> treatingDoctorDetails;
-    private List<SpecialityDetailsDTO> specialityDetails;
+    private List<SpecialityDetailsDTO> specialtyDetails;
     private AmountDetailsDTO amountDetails;
 }

@@ -8,7 +8,7 @@ import java.util.List;
 public class PreAuthDetails {
     private List<FileDTO> files;
     private String policySource;
-    private Double requestedAmount;
+    private Integer requestedAmount;
     private String hospitalCode;
     private String admissionType;
     private String policyNumber;
