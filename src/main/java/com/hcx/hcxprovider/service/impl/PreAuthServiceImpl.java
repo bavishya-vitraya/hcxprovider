@@ -1,6 +1,5 @@
 package com.hcx.hcxprovider.service.impl;
 
-import com.hcx.hcxprovider.dto.PreAuthEnhanceDTO;
 import com.hcx.hcxprovider.dto.PreAuthReqDTO;
 import com.hcx.hcxprovider.model.PreAuthRequest;
 import com.hcx.hcxprovider.repository.PreAuthRequestRepo;
@@ -43,24 +42,23 @@ public class PreAuthServiceImpl implements PreAuthService {
         return "PreAuth request pushed to Queue";
     }
 
-    @Override
-    public String updatePreAuthRequest(PreAuthEnhanceDTO preAuthEnhanceDTO){
-        String id=preAuthEnhanceDTO.getPreAuthid();
+    /*public String updatePreAuthRequest(FinalEnhanceDTO finalEnhanceDTO){
+        String id= finalEnhanceDTO.getPreAuthid();
         PreAuthRequest preAuthRequest=preAuthRequestRepo.findPreAuthRequestById(id);
         log.info("Before change dateOfAdmission{} ::", preAuthRequest.getPreAuthReq().getAdditionalData().getDateOfAdmission());
-        preAuthRequest.getPreAuthReq().setRequestedAmount(Double.valueOf(preAuthEnhanceDTO.getRequestedAmount()));
-        preAuthRequest.getPreAuthReq().getAdditionalData().setDateOfAdmission(preAuthEnhanceDTO.getDateOfAdmission());
-        preAuthRequest.getPreAuthReq().getAdditionalData().setDateOfDischarge(preAuthEnhanceDTO.getDateOfDischarge());
-        preAuthRequest.getPreAuthReq().getAdditionalData().setIncludesFinalBill(preAuthEnhanceDTO.isIncludesFinalBill());
-        preAuthRequest.getPreAuthReq().getAdditionalData().setRoomCategory(preAuthEnhanceDTO.getRoomCategory());
-        preAuthRequest.setDiagnosis(preAuthEnhanceDTO.getDiagnosis());
+        preAuthRequest.getPreAuthReq().setRequestedAmount(Double.valueOf(finalEnhanceDTO.getRequestedAmount()));
+        preAuthRequest.getPreAuthReq().getAdditionalData().setDateOfAdmission(finalEnhanceDTO.getDateOfAdmission());
+        preAuthRequest.getPreAuthReq().getAdditionalData().setDateOfDischarge(finalEnhanceDTO.getDateOfDischarge());
+        preAuthRequest.getPreAuthReq().getAdditionalData().setIncludesFinalBill(finalEnhanceDTO.isIncludesFinalBill());
+        preAuthRequest.getPreAuthReq().getAdditionalData().setRoomCategory(finalEnhanceDTO.getRoomCategory());
+        preAuthRequest.setDiagnosis(finalEnhanceDTO.getDiagnosis());
       //  preAuthRequest.getPreAuthReq().getAdditionalData().getSpecialityDetails().get(0).setProcedureName(preAuthEnhanceDTO.getProcedure());
         //amount breakup
-        preAuthRequest.getPreAuthReq().setFiles(preAuthEnhanceDTO.getFiles());
-        preAuthRequest.getPreAuthReq().setVitrayaReferenceNumber(preAuthEnhanceDTO.getVitrayaReferenceNumber());
+        preAuthRequest.getPreAuthReq().setFiles(finalEnhanceDTO.getFiles());
+        preAuthRequest.getPreAuthReq().setVitrayaReferenceNumber(finalEnhanceDTO.getVitrayaReferenceNumber());
 
         preAuthRequestRepo.save(preAuthRequest);
         log.info("After change dateOfAdmission{}  ", preAuthRequest.getPreAuthReq().getAdditionalData().getDateOfAdmission());
         return "PreAuth request updated";
-    }
+    }*/
 }

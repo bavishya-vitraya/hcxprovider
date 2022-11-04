@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PreAuthEnhanceDTO {
+public class FinalEnhanceDTO {
     private String preAuthid;
     private String requestedAmount;
     private String dateOfAdmission;
@@ -20,5 +20,7 @@ public class PreAuthEnhanceDTO {
     private List<String> procedure;
     private List<FileDTO> files;
     private String amountBreakup;
+    private AdjudicationDetailsRequest adjudicationResult;
     private String vitrayaReferenceNumber;
+    private String queryResponse;
 }

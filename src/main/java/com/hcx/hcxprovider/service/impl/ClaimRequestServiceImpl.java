@@ -39,6 +39,7 @@ public class ClaimRequestServiceImpl implements ClaimRequestService {
         claimRequestDTO.setRequestType(claimRequest.getRequestType());
         claimRequestDTO.setHospitalCode(claimRequest.getHospitalCode());
         claimRequestDTO.setInsurerCode(claimRequest.getInsurerCode());
+        log.info("Claim Request: {}",claimRequest.getClaimRequest());
         rabbitTemplate.convertAndSend(exchange,routingkey,claimRequestDTO);
         return "Claim Request sent successfully";
     }

@@ -1,6 +1,5 @@
 package com.hcx.hcxprovider.controllers;
 
-import com.hcx.hcxprovider.dto.PreAuthEnhanceDTO;
 import com.hcx.hcxprovider.model.ClaimRequest;
 import com.hcx.hcxprovider.model.CoverageEligibilityRequest;
 import com.hcx.hcxprovider.model.PreAuthRequest;
@@ -31,12 +30,12 @@ public class VHIRequestController {
 
     }
 
-    @PostMapping(value = "/updatePreAuthReq")
-    public String updatePreAuthRequest(@RequestBody PreAuthEnhanceDTO preAuthEnhanceDTO){
+   /* @PostMapping(value = "/updatePreAuthReq")
+    public String updatePreAuthRequest(@RequestBody FinalEnhanceDTO finalEnhanceDTO){
         log.info("Entered update PreAuth Controller");
-        return preAuthService.updatePreAuthRequest(preAuthEnhanceDTO);
+        return preAuthService.updatePreAuthRequest(finalEnhanceDTO);
 
-    }
+    }*/
 
     @PostMapping(value = "/saveCoverageEligibility")
     public String saveCoverageEligibilityRequest(@RequestBody CoverageEligibilityRequest coverageEligibilityRequest){

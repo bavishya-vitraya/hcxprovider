@@ -1,5 +1,6 @@
 package com.hcx.hcxprovider.model;
 
+import com.hcx.hcxprovider.dto.FinalEnhanceDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -15,4 +16,5 @@ public class ClaimRequest {
     private String hospitalCode;
     private String hospitalName;
     private String requestType;
+    private FinalEnhanceDTO claimRequest;
 }
