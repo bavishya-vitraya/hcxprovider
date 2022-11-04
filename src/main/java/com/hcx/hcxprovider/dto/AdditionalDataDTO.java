@@ -14,7 +14,7 @@ public class AdditionalDataDTO {
     private String dateOfDischarge;
     private String patientStatus;
     private String managementType;
-    private Boolean includesFinalBill;
+    private boolean includesFinalBill;
     private String ipNumber;
     private String dateOfAdmission;
     private List<TreatingDoctorDetailsDTO> treatingDoctorDetails;

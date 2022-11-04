@@ -6,14 +6,17 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Document(collection = "preAuthRequests")
 @AllArgsConstructor
 @Data
 public class PreAuthRequest {
-@Id
+    @Id
     private String id;
     private String senderCode;
     private String insurerCode;
     private String requestType;
+    private List<String> diagnosis;
     private PreAuthDetails preAuthReq;
 }

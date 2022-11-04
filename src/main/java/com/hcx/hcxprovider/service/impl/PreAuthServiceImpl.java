@@ -1,5 +1,6 @@
 package com.hcx.hcxprovider.service.impl;
 
+import com.hcx.hcxprovider.dto.PreAuthEnhanceDTO;
 import com.hcx.hcxprovider.dto.PreAuthReqDTO;
 import com.hcx.hcxprovider.model.PreAuthRequest;
 import com.hcx.hcxprovider.repository.PreAuthRequestRepo;
@@ -40,5 +41,26 @@ public class PreAuthServiceImpl implements PreAuthService {
         log.info("preAuthReqDTO {} ",preAuthReqDTO);
         rabbitTemplate.convertAndSend(exchange,routingkey,preAuthReqDTO);
         return "PreAuth request pushed to Queue";
+    }
+
+    @Override
+    public String updatePreAuthRequest(PreAuthEnhanceDTO preAuthEnhanceDTO){
+        String id=preAuthEnhanceDTO.getPreAuthid();
+        PreAuthRequest preAuthRequest=preAuthRequestRepo.findPreAuthRequestById(id);
+        log.info("Before change dateOfAdmission{} ::", preAuthRequest.getPreAuthReq().getAdditionalData().getDateOfAdmission());
+        preAuthRequest.getPreAuthReq().setRequestedAmount(Double.valueOf(preAuthEnhanceDTO.getRequestedAmount()));
+        preAuthRequest.getPreAuthReq().getAdditionalData().setDateOfAdmission(preAuthEnhanceDTO.getDateOfAdmission());
+        preAuthRequest.getPreAuthReq().getAdditionalData().setDateOfDischarge(preAuthEnhanceDTO.getDateOfDischarge());
+        preAuthRequest.getPreAuthReq().getAdditionalData().setIncludesFinalBill(preAuthEnhanceDTO.isIncludesFinalBill());
+        preAuthRequest.getPreAuthReq().getAdditionalData().setRoomCategory(preAuthEnhanceDTO.getRoomCategory());
+        preAuthRequest.setDiagnosis(preAuthEnhanceDTO.getDiagnosis());
+      //  preAuthRequest.getPreAuthReq().getAdditionalData().getSpecialityDetails().get(0).setProcedureName(preAuthEnhanceDTO.getProcedure());
+        //amount breakup
+        preAuthRequest.getPreAuthReq().setFiles(preAuthEnhanceDTO.getFiles());
+        preAuthRequest.getPreAuthReq().setVitrayaReferenceNumber(preAuthEnhanceDTO.getVitrayaReferenceNumber());
+
+        preAuthRequestRepo.save(preAuthRequest);
+        log.info("After change dateOfAdmission{}  ", preAuthRequest.getPreAuthReq().getAdditionalData().getDateOfAdmission());
+        return "PreAuth request updated";
     }
 }
