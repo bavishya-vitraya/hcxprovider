@@ -13,7 +13,7 @@ public class ClaimRequest {
     @Id
     private String id;
     private String insurerCode;
-    private String hospitalCode;
+    private String senderCode;
     private String hospitalName;
     private String requestType;
     private FinalEnhanceDTO claimRequest;

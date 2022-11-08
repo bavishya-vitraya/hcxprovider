@@ -14,14 +14,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class ClaimRequestServiceImpl implements ClaimRequestService {
 
-    @Value("${queue.name}")
-    String queueName;
-
     @Value("${queue.exchange}")
     String exchange;
 
-    @Value("${queue.routingKey}")
-    private String routingkey;
+    @Value("${queue.req.routingKey}")
+    private String reqRoutingkey;
 
     @Autowired
     ClaimRequestRepo claimRequestRepo;
@@ -37,10 +34,10 @@ public class ClaimRequestServiceImpl implements ClaimRequestService {
         ClaimRequestDTO claimRequestDTO = new ClaimRequestDTO();
         claimRequestDTO.setRequestId(claimRequest.getId());
         claimRequestDTO.setRequestType(claimRequest.getRequestType());
-        claimRequestDTO.setHospitalCode(claimRequest.getHospitalCode());
+        claimRequestDTO.setSenderCode(claimRequest.getSenderCode());
         claimRequestDTO.setInsurerCode(claimRequest.getInsurerCode());
         log.info("Claim Request: {}",claimRequest.getClaimRequest());
-        rabbitTemplate.convertAndSend(exchange,routingkey,claimRequestDTO);
+        rabbitTemplate.convertAndSend(exchange,reqRoutingkey,claimRequestDTO);
         return "Claim Request sent successfully";
     }
 }

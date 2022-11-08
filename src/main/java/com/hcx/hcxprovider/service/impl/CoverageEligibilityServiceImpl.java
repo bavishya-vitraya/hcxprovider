@@ -13,14 +13,12 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class CoverageEligibilityServiceImpl implements CoverageEligibilityService {
-    @Value("${queue.name}")
-    String queueName;
 
     @Value("${queue.exchange}")
     String exchange;
 
-    @Value("${queue.routingKey}")
-    private String routingkey;
+    @Value("${queue.req.routingKey}")
+    private String reqRoutingkey;
 
     @Autowired
     CoverageEligibilityRequestRepo coverageEligibilityRequestRepo;
@@ -35,9 +33,9 @@ public class CoverageEligibilityServiceImpl implements CoverageEligibilityServic
         CoverageEligibilityDTO coverageEligibilityDTO= new CoverageEligibilityDTO();
         coverageEligibilityDTO.setRequestId(coverageEligibilityRequest.getId());
         coverageEligibilityDTO.setInsurerCode(coverageEligibilityRequest.getInsurerCode());
-        coverageEligibilityDTO.setHospitalCode(coverageEligibilityRequest.getHospitalCode());
+        coverageEligibilityDTO.setSenderCode(coverageEligibilityRequest.getSenderCode());
         coverageEligibilityDTO.setRequestType(coverageEligibilityRequest.getRequestType());
-        rabbitTemplate.convertAndSend(exchange,routingkey,coverageEligibilityDTO);
+        rabbitTemplate.convertAndSend(exchange,reqRoutingkey,coverageEligibilityDTO);
         return "Coverage Eligibility request sent successfully";
     }
 }

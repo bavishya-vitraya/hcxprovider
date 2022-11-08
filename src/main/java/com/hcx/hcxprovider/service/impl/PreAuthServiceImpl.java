@@ -1,10 +1,15 @@
 package com.hcx.hcxprovider.service.impl;
 
+import com.google.gson.Gson;
 import com.hcx.hcxprovider.dto.PreAuthReqDTO;
+import com.hcx.hcxprovider.dto.PreAuthResDTO;
 import com.hcx.hcxprovider.model.PreAuthRequest;
+import com.hcx.hcxprovider.model.PreAuthResponse;
 import com.hcx.hcxprovider.repository.PreAuthRequestRepo;
+import com.hcx.hcxprovider.repository.PreAuthResponseRepo;
 import com.hcx.hcxprovider.service.PreAuthService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,20 +18,25 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class PreAuthServiceImpl implements PreAuthService {
-    @Value("${queue.name}")
-    String queueName;
 
     @Value("${queue.exchange}")
     String exchange;
 
-    @Value("${queue.routingKey}")
-    private String routingkey;
+    @Value("${queue.req.routingKey}")
+    private String reqRoutingkey;
+
+    @Value("${queue.res.routingKey}")
+    private String resRoutingkey;
 
     @Autowired
-    PreAuthRequestRepo preAuthRequestRepo;
+    private  PreAuthRequestRepo preAuthRequestRepo;
 
     @Autowired
-    RabbitTemplate rabbitTemplate;
+    private PreAuthResponseRepo preAuthResponseRepo;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
 
     @Override
    public String savePreAuthRequest( PreAuthRequest preAuthRequest){
@@ -35,30 +45,29 @@ public class PreAuthServiceImpl implements PreAuthService {
         PreAuthReqDTO preAuthReqDTO = new PreAuthReqDTO();
         preAuthReqDTO.setRequestId(preAuthRequest.getId());
         preAuthReqDTO.setRequestType(preAuthRequest.getRequestType());
-        preAuthReqDTO.setHospitalCode(preAuthRequest.getSenderCode());
+        preAuthReqDTO.setSenderCode(preAuthRequest.getSenderCode());
         preAuthReqDTO.setInsurerCode(preAuthRequest.getInsurerCode());
         log.info("preAuthReqDTO {} ",preAuthReqDTO);
-        rabbitTemplate.convertAndSend(exchange,routingkey,preAuthReqDTO);
+        rabbitTemplate.convertAndSend(exchange,reqRoutingkey,preAuthReqDTO);
         return "PreAuth request pushed to Queue";
     }
 
-    /*public String updatePreAuthRequest(FinalEnhanceDTO finalEnhanceDTO){
-        String id= finalEnhanceDTO.getPreAuthid();
-        PreAuthRequest preAuthRequest=preAuthRequestRepo.findPreAuthRequestById(id);
-        log.info("Before change dateOfAdmission{} ::", preAuthRequest.getPreAuthReq().getAdditionalData().getDateOfAdmission());
-        preAuthRequest.getPreAuthReq().setRequestedAmount(Double.valueOf(finalEnhanceDTO.getRequestedAmount()));
-        preAuthRequest.getPreAuthReq().getAdditionalData().setDateOfAdmission(finalEnhanceDTO.getDateOfAdmission());
-        preAuthRequest.getPreAuthReq().getAdditionalData().setDateOfDischarge(finalEnhanceDTO.getDateOfDischarge());
-        preAuthRequest.getPreAuthReq().getAdditionalData().setIncludesFinalBill(finalEnhanceDTO.isIncludesFinalBill());
-        preAuthRequest.getPreAuthReq().getAdditionalData().setRoomCategory(finalEnhanceDTO.getRoomCategory());
-        preAuthRequest.setDiagnosis(finalEnhanceDTO.getDiagnosis());
-      //  preAuthRequest.getPreAuthReq().getAdditionalData().getSpecialityDetails().get(0).setProcedureName(preAuthEnhanceDTO.getProcedure());
-        //amount breakup
-        preAuthRequest.getPreAuthReq().setFiles(finalEnhanceDTO.getFiles());
-        preAuthRequest.getPreAuthReq().setVitrayaReferenceNumber(finalEnhanceDTO.getVitrayaReferenceNumber());
+    @Override
+    public String savePreAuthResponse(String preAuth) {
+        Gson json = new Gson();
+        PreAuthResponse preAuthResponse=new PreAuthResponse();
+        preAuthResponse=json.fromJson(preAuth, PreAuthResponse.class);
+        preAuthResponseRepo.save(preAuthResponse);
+        log.info("preAuth  req saved");
+        PreAuthResDTO preAuthResDTO= new PreAuthResDTO();
+        preAuthResDTO.setResponseId(preAuthResponse.getResponseId());
+        preAuthResDTO.setResponseType(preAuthResponse.getResponseType());
+        preAuthResDTO.setSenderCode(preAuthResponse.getSenderCode());
+        preAuthResDTO.setInsurerCode(preAuthResponse.getInsurerCode());
+        rabbitTemplate.convertAndSend(exchange,resRoutingkey,preAuthResDTO);
+        return "PreAuth request pushed to Queue";
+    }
 
-        preAuthRequestRepo.save(preAuthRequest);
-        log.info("After change dateOfAdmission{}  ", preAuthRequest.getPreAuthReq().getAdditionalData().getDateOfAdmission());
-        return "PreAuth request updated";
-    }*/
+
+
 }
