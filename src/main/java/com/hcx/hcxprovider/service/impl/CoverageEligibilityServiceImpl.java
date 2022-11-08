@@ -14,12 +14,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class CoverageEligibilityServiceImpl implements CoverageEligibilityService {
 
-    @Value("${queue.exchange}")
-    String exchange;
+    @Value("${queue.exchange.name}")
+    private String exchange;
 
-    @Value("${queue.req.routingKey}")
-    private String reqRoutingkey;
+    @Value("${queue.reqrouting.key}")
+    private String reqroutingKey;
 
+    @Value("${queue.resrouting.key}")
+    private String resroutingKey;
     @Autowired
     CoverageEligibilityRequestRepo coverageEligibilityRequestRepo;
     @Autowired
@@ -35,7 +37,7 @@ public class CoverageEligibilityServiceImpl implements CoverageEligibilityServic
         coverageEligibilityDTO.setInsurerCode(coverageEligibilityRequest.getInsurerCode());
         coverageEligibilityDTO.setSenderCode(coverageEligibilityRequest.getSenderCode());
         coverageEligibilityDTO.setRequestType(coverageEligibilityRequest.getRequestType());
-        rabbitTemplate.convertAndSend(exchange,reqRoutingkey,coverageEligibilityDTO);
+        rabbitTemplate.convertAndSend(exchange,reqroutingKey,coverageEligibilityDTO);
         return "Coverage Eligibility request sent successfully";
     }
 }

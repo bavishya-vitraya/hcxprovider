@@ -19,15 +19,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class PreAuthServiceImpl implements PreAuthService {
 
-    @Value("${queue.exchange}")
-    String exchange;
+    @Value("${queue.exchange.name}")
+    private String exchange;
 
-    @Value("${queue.req.routingKey}")
-    private String reqRoutingkey;
+    @Value("${queue.reqrouting.key}")
+    private String reqroutingKey;
 
-    @Value("${queue.res.routingKey}")
-    private String resRoutingkey;
-
+    @Value("${queue.resrouting.key}")
+    private String resroutingKey;
     @Autowired
     private  PreAuthRequestRepo preAuthRequestRepo;
 
@@ -48,7 +47,7 @@ public class PreAuthServiceImpl implements PreAuthService {
         preAuthReqDTO.setSenderCode(preAuthRequest.getSenderCode());
         preAuthReqDTO.setInsurerCode(preAuthRequest.getInsurerCode());
         log.info("preAuthReqDTO {} ",preAuthReqDTO);
-        rabbitTemplate.convertAndSend(exchange,reqRoutingkey,preAuthReqDTO);
+        rabbitTemplate.convertAndSend(exchange,reqroutingKey,preAuthReqDTO);
         return "PreAuth request pushed to Queue";
     }
 
@@ -56,7 +55,7 @@ public class PreAuthServiceImpl implements PreAuthService {
     public String savePreAuthResponse(String preAuth) {
         Gson json = new Gson();
         PreAuthResponse preAuthResponse=new PreAuthResponse();
-        preAuthResponse=json.fromJson(preAuth, PreAuthResponse.class);
+        preAuthResponse=(PreAuthResponse) json.fromJson(preAuth, PreAuthResponse.class);
         preAuthResponseRepo.save(preAuthResponse);
         log.info("preAuth  req saved");
         PreAuthResDTO preAuthResDTO= new PreAuthResDTO();
@@ -64,8 +63,8 @@ public class PreAuthServiceImpl implements PreAuthService {
         preAuthResDTO.setResponseType(preAuthResponse.getResponseType());
         preAuthResDTO.setSenderCode(preAuthResponse.getSenderCode());
         preAuthResDTO.setInsurerCode(preAuthResponse.getInsurerCode());
-        rabbitTemplate.convertAndSend(exchange,resRoutingkey,preAuthResDTO);
-        return "PreAuth request pushed to Queue";
+        rabbitTemplate.convertAndSend(exchange,resroutingKey,preAuthResDTO);
+        return "PreAuth response pushed to Queue";
     }
 
 
