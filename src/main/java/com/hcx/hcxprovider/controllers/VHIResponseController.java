@@ -16,11 +16,9 @@ public class VHIResponseController {
     @Autowired
     private PreAuthService preAuthService;
 
-    @PostMapping("/savePreAuthRes")
-    public String savePreAuthResponse(@RequestBody String preAuth){
+    @PostMapping("/preauth/on_submit")
+    public String savePreAuthResponse(@RequestBody String preAuth) throws Exception {
         log.info("Entered Save PreAuth Response Controller");
-
         return preAuthService.savePreAuthResponse(preAuth);
-
     }
 }

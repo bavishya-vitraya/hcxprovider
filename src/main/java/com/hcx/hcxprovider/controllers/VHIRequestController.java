@@ -30,13 +30,6 @@ public class VHIRequestController {
 
     }
 
-   /* @PostMapping(value = "/updatePreAuthReq")
-    public String updatePreAuthRequest(@RequestBody FinalEnhanceDTO finalEnhanceDTO){
-        log.info("Entered update PreAuth Controller");
-        return preAuthService.updatePreAuthRequest(finalEnhanceDTO);
-
-    }*/
-
     @PostMapping(value = "/saveCoverageEligibility")
     public String saveCoverageEligibilityRequest(@RequestBody CoverageEligibilityRequest coverageEligibilityRequest){
         log.info("Entered Save CoverageEligibility Controller");

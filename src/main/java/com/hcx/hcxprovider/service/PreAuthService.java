@@ -8,7 +8,7 @@ public interface PreAuthService {
 
     String savePreAuthRequest(PreAuthRequest preAuthRequest);
 
-    String savePreAuthResponse(String preAuth);
+    String savePreAuthResponse(String preAuth) throws Exception;
 
 
 }
