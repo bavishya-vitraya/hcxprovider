@@ -94,12 +94,30 @@ public class PreAuthServiceImpl implements PreAuthService {
         config.put("igUrl", igUrl);
         return config;
     }
+    public Map<String, Object> setPayorConfig() throws IOException {
+        Map<String, Object> config = new HashMap<>();
+        File file = new ClassPathResource("keys/vitraya-mock-payor-private-key.pem").getFile();
+        String privateKey= FileUtils.readFileToString(file);
+        config.put("protocolBasePath", protocolBasePath);
+        config.put("authBasePath", authBasePath);
+        config.put("participantCode","1-434d79f6-aad8-48bc-b408-980a4dbd90e2");
+        config.put("username", "vitrayahcxpayor1@vitrayatech.com");
+        config.put("password","BkYJHwm64EEn8B8");
+        config.put("encryptionPrivateKey", privateKey);
+        config.put("igUrl", igUrl);
+        return config;
+    }
     @Override
-    public String savePreAuthResponse(String preAuth) throws Exception {
+    public String savePreAuthResponse(String pre) throws Exception {
+        File payloadFile = new ClassPathResource("input/jwePayload").getFile();
+        String preAuthRes = FileUtils.readFileToString(payloadFile);
+        Operations operation = Operations.PRE_AUTH_ON_SUBMIT;
         HCXIntegrator.init(setConfig());
         Map<String,Object> output = new HashMap<>();
         HCXIncomingRequest hcxIncomingRequest = new HCXIncomingRequest();
-        hcxIncomingRequest.process(preAuth, Operations.PRE_AUTH_ON_SUBMIT,output);
+        hcxIncomingRequest.process(preAuthRes,operation,output);
+        //hcxIncomingRequest.decryptPayload(preAuthRes,output);
+        log.info("Incoming Request: {}",output);
         String fhirPayload = (String) output.get("fhirPayload");
         PreAuthResponse preAuthResponse=new PreAuthResponse();
         preAuthResponse.setResult(fhirPayload);
@@ -113,7 +131,4 @@ public class PreAuthServiceImpl implements PreAuthService {
         rabbitTemplate.convertAndSend(exchange,resroutingKey,preAuthResDTO);
         return "PreAuth response pushed to Queue";
     }
-
-
-
 }
