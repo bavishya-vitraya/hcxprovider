@@ -1,13 +1,16 @@
-package com.hcx.hcxprovider.model;
+package com.hcx.hcxprovider.dto;
 
 
-
-import com.hcx.hcxprovider.dto.ClaimAdjudicationData;
-import com.hcx.hcxprovider.dto.GalaxyFile;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class preAuthVhiResponse {
 
     private String claimNumber;
