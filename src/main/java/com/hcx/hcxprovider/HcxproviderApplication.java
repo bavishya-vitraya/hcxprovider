@@ -10,12 +10,14 @@ import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.codesystems.Adjudication;
 import org.hl7.fhir.r4.model.codesystems.ClaimType;
+import org.hl7.fhir.r4.model.codesystems.ProcessPriority;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,21 +41,38 @@ public class HcxproviderApplication {
 	}
 	public static void getJWEResponsePayload() throws Exception {
 		preAuthVhiResponse vhiResponse = new preAuthVhiResponse();
+		// claim response will come from payor connector apis - hard coded for now
+		vhiResponse.setClaimNumber("CIR/2023/161200/1019485");
+		vhiResponse.setClaimStatus(preAuthVhiResponse.AdjudicationClaimStatus.APPROVED);
+		vhiResponse.setClaimStatusInString("Approved");
+		vhiResponse.setQuery("SUB-LIMIT APPLICABLE.\\n\\nPlease send us indoor case sheets, investigation reports, OT notes, post OP X-Ray images, implant invoices if applicable, discharge summary,  final bill with break up and other related documents.");
+		vhiResponse.setApprovedAmount(BigDecimal.valueOf(20000));
 
-		Patient patient = new Patient();
+		Patient patient = new Patient();// should fetch from claim request
 		patient.setId("Patient/1");
 
-		Organization organization = new Organization();
+		Organization organization = new Organization(); // should fetch from claim request
 		organization.setId("organization/1");
+		organization.setName("Test-HOS01");
 
-		Claim claimRequest = new Claim();
+		Claim claimRequest = new Claim(); // should fetch from claim request
 		claimRequest.setId("Claim/1");
+		claimRequest.setUse(Claim.Use.PREAUTHORIZATION);
+		claimRequest.setId("Claim/1");
+		claimRequest.setCreated(new Date());
+		claimRequest.setStatus(Claim.ClaimStatus.ACTIVE);
+		claimRequest.setType(new CodeableConcept(new Coding().setCode(ClaimType.INSTITUTIONAL.toCode()).setSystem("http://terminology.hl7.org/CodeSystem/claim-type")));
+		claimRequest.setPriority(new CodeableConcept(new Coding().setSystem("http://terminology.hl7.org/CodeSystem/processpriority").setCode(ProcessPriority.NORMAL.toCode())));
+		claimRequest.setPatient(new Reference(patient.getId()));
+		claimRequest.setProvider(new Reference(organization.getId()));
+		claimRequest.addInsurance().setSequence(1).setFocal(true).setCoverage(new Reference("Coverage/1"));
+
 
 		ClaimResponse claimResponse = new ClaimResponse();
         claimResponse.setId("ClaimResponse/1");
 		claimResponse.addIdentifier().setValue(vhiResponse.getClaimNumber());
 		claimResponse.setPreAuthRef(vhiResponse.getClaimNumber());
-		claimResponse.setOutcome(ClaimResponse.RemittanceOutcome.valueOf(vhiResponse.getClaimStatus().getStatus()));
+		claimResponse.setOutcome(ClaimResponse.RemittanceOutcome.COMPLETE); // no approved enum provided
 		claimResponse.setDisposition(vhiResponse.getClaimStatusInString());
 		claimResponse.addProcessNote().setText(vhiResponse.getQuery());
 		claimResponse.addTotal().setAmount(new Money().setCurrency("INR").setValue(vhiResponse.getApprovedAmount())).setCategory(new CodeableConcept(new Coding().setCode(Adjudication.ELIGIBLE.toCode()).setSystem("http://terminology.hl7.org/CodeSystem/adjudication")));
@@ -92,6 +111,7 @@ public class HcxproviderApplication {
 		String messageString = p.encodeResourceToString(bundle);
 		System.out.println("here is the json " + messageString);
 
+		HCXIntegrator.init(setPayorConfig());
 		HCXOutgoingRequest hcxOutgoingRequest = new HCXOutgoingRequest();
 		Map<String,Object> output = new HashMap<>();
 		Operations operation = Operations.PRE_AUTH_ON_SUBMIT;
@@ -104,7 +124,7 @@ public class HcxproviderApplication {
 	public static void main(String[] args) throws Exception {
 
 		SpringApplication.run(HcxproviderApplication.class, args);
-		//getJWEResponsePayload();
+		getJWEResponsePayload();
 	}
 
 }
