@@ -1,5 +1,7 @@
 package com.hcx.hcxprovider;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
 import com.hcx.hcxprovider.dto.preAuthVhiResponse;
 import io.hcxprotocol.impl.HCXOutgoingRequest;
 import io.hcxprotocol.init.HCXIntegrator;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @SpringBootApplication
 public class HcxproviderApplication {
@@ -35,9 +38,6 @@ public class HcxproviderApplication {
 		return config;
 	}
 	public static void getJWEResponsePayload() throws Exception {
-		HCXIntegrator.init(setPayorConfig());
-		File payloadFile = new ClassPathResource("input/claimResponse.json").getFile();
-		String payload = FileUtils.readFileToString(payloadFile);
 		preAuthVhiResponse vhiResponse = new preAuthVhiResponse();
 
 		Patient patient = new Patient();
@@ -50,6 +50,7 @@ public class HcxproviderApplication {
 		claimRequest.setId("Claim/1");
 
 		ClaimResponse claimResponse = new ClaimResponse();
+        claimResponse.setId("ClaimResponse/1");
 		claimResponse.addIdentifier().setValue(vhiResponse.getClaimNumber());
 		claimResponse.setPreAuthRef(vhiResponse.getClaimNumber());
 		claimResponse.setOutcome(ClaimResponse.RemittanceOutcome.valueOf(vhiResponse.getClaimStatus().getStatus()));
@@ -66,19 +67,44 @@ public class HcxproviderApplication {
 		claimResponse.setRequest(new Reference(claimRequest.getId()));
 
 
+		Composition composition= new Composition();
+		composition.setId("composition/" + UUID.randomUUID().toString());
+		composition.setStatus(Composition.CompositionStatus.FINAL);
+        composition.getType().addCoding().setCode("HCXClaimResponse").setSystem("https://hcx.org/document-types").setDisplay("Claim Response");
+		composition.setDate(new Date());
+		composition.addAuthor().setReference("Organization/1");
+		composition.setTitle("Claim Response");
+		composition.addSection().addEntry().setReference("ClaimResponse/1");
+
+		FhirContext fhirctx = FhirContext.forR4();
+		Bundle bundle = new Bundle();
+		bundle.setId(UUID.randomUUID().toString());
+		bundle.setType(Bundle.BundleType.DOCUMENT);
+		bundle.getIdentifier().setSystem("https://www.tmh.in/bundle").setValue(bundle.getId());
+		bundle.setTimestamp(new Date());
+		bundle.addEntry().setFullUrl(composition.getId()).setResource(composition);
+		bundle.addEntry().setFullUrl(claimRequest.getId()).setResource(claimRequest);
+		bundle.addEntry().setFullUrl(patient.getId()).setResource(patient);
+		bundle.addEntry().setFullUrl(organization.getId()).setResource(organization);
+		bundle.addEntry().setFullUrl(claimResponse.getId()).setResource(claimResponse);
+
+		IParser p = fhirctx.newJsonParser().setPrettyPrint(true);
+		String messageString = p.encodeResourceToString(bundle);
+		System.out.println("here is the json " + messageString);
+
 		HCXOutgoingRequest hcxOutgoingRequest = new HCXOutgoingRequest();
 		Map<String,Object> output = new HashMap<>();
 		Operations operation = Operations.PRE_AUTH_ON_SUBMIT;
 		File actionJweFile = new ClassPathResource("input/jweResponse").getFile();
 		String actionJwe = FileUtils.readFileToString(actionJweFile);
 		String status = "response.partial";
-		Boolean res = hcxOutgoingRequest.generate(payload,operation,actionJwe,status,output);
+		Boolean res = hcxOutgoingRequest.generate(messageString,operation,actionJwe,status,output);
 		System.out.println("{}"+res+output);
 	}
 	public static void main(String[] args) throws Exception {
 
 		SpringApplication.run(HcxproviderApplication.class, args);
-		getJWEResponsePayload();
+		//getJWEResponsePayload();
 	}
 
 }
