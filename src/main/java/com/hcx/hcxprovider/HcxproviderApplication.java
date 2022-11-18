@@ -2,7 +2,7 @@ package com.hcx.hcxprovider;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
-import com.hcx.hcxprovider.dto.preAuthVhiResponse;
+import com.hcx.hcxprovider.dto.PreAuthVhiResponse;
 import io.hcxprotocol.impl.HCXOutgoingRequest;
 import io.hcxprotocol.init.HCXIntegrator;
 import io.hcxprotocol.utils.Operations;
@@ -40,10 +40,10 @@ public class HcxproviderApplication {
 		return config;
 	}
 	public static void getJWEResponsePayload() throws Exception {
-		preAuthVhiResponse vhiResponse = new preAuthVhiResponse();
+		PreAuthVhiResponse vhiResponse = new PreAuthVhiResponse();
 		// claim response will come from payor connector apis - hard coded for now
 		vhiResponse.setClaimNumber("CIR/2023/161200/1019485");
-		vhiResponse.setClaimStatus(preAuthVhiResponse.AdjudicationClaimStatus.APPROVED);
+		vhiResponse.setClaimStatus(PreAuthVhiResponse.AdjudicationClaimStatus.APPROVED);
 		vhiResponse.setClaimStatusInString("Approved");
 		vhiResponse.setQuery("SUB-LIMIT APPLICABLE.\\n\\nPlease send us indoor case sheets, investigation reports, OT notes, post OP X-Ray images, implant invoices if applicable, discharge summary,  final bill with break up and other related documents.");
 		vhiResponse.setApprovedAmount(BigDecimal.valueOf(20000));

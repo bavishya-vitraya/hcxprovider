@@ -1,5 +1,6 @@
 package com.hcx.hcxprovider.model;
 
+import com.hcx.hcxprovider.dto.PreAuthVhiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,5 +17,6 @@ public class PreAuthResponse {
     private String senderCode;
     private String insurerCode;
     private String responseType;
-    private String result;
+    private String fhirPayload;
+    private PreAuthVhiResponse preAuthVhiResponse;
 }

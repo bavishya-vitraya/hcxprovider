@@ -73,8 +73,8 @@ public class PreAuthServiceImpl implements PreAuthService {
         preAuthRequestRepo.save(preAuthRequest);
         log.info("preAuth  req saved");
         PreAuthReqDTO preAuthReqDTO = new PreAuthReqDTO();
-        preAuthReqDTO.setRequestId(preAuthRequest.getId());
-        preAuthReqDTO.setRequestType(preAuthRequest.getRequestType());
+        preAuthReqDTO.setReferenceId(preAuthRequest.getId());
+        preAuthReqDTO.setMessageType(preAuthRequest.getRequestType());
         preAuthReqDTO.setSenderCode(preAuthRequest.getSenderCode());
         preAuthReqDTO.setInsurerCode(preAuthRequest.getInsurerCode());
         log.info("preAuthReqDTO {} ",preAuthReqDTO);
@@ -94,19 +94,7 @@ public class PreAuthServiceImpl implements PreAuthService {
         config.put("igUrl", igUrl);
         return config;
     }
-    public Map<String, Object> setPayorConfig() throws IOException {
-        Map<String, Object> config = new HashMap<>();
-        File file = new ClassPathResource("keys/vitraya-mock-payor-private-key.pem").getFile();
-        String privateKey= FileUtils.readFileToString(file);
-        config.put("protocolBasePath", protocolBasePath);
-        config.put("authBasePath", authBasePath);
-        config.put("participantCode","1-434d79f6-aad8-48bc-b408-980a4dbd90e2");
-        config.put("username", "vitrayahcxpayor1@vitrayatech.com");
-        config.put("password","BkYJHwm64EEn8B8");
-        config.put("encryptionPrivateKey", privateKey);
-        config.put("igUrl", igUrl);
-        return config;
-    }
+
     @Override
     public String savePreAuthResponse(String pre) throws Exception {
         File payloadFile = new ClassPathResource("input/jwePayload").getFile();
@@ -120,12 +108,12 @@ public class PreAuthServiceImpl implements PreAuthService {
         log.info("Incoming Request: {}",output);
         String fhirPayload = (String) output.get("fhirPayload");
         PreAuthResponse preAuthResponse=new PreAuthResponse();
-        preAuthResponse.setResult(fhirPayload);
+        preAuthResponse.setFhirPayload(fhirPayload);
         preAuthResponseRepo.save(preAuthResponse);
         log.info("preAuth  req saved");
         PreAuthResDTO preAuthResDTO= new PreAuthResDTO();
-        preAuthResDTO.setResponseId(preAuthResponse.getResponseId());
-        preAuthResDTO.setResponseType(preAuthResponse.getResponseType());
+        preAuthResDTO.setReferenceId(preAuthResponse.getResponseId());
+        preAuthResDTO.setMessageType(preAuthResponse.getResponseType());
         preAuthResDTO.setSenderCode(preAuthResponse.getSenderCode());
         preAuthResDTO.setInsurerCode(preAuthResponse.getInsurerCode());
         rabbitTemplate.convertAndSend(exchange,resroutingKey,preAuthResDTO);

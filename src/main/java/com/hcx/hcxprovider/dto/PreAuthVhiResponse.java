@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class preAuthVhiResponse {
+public class PreAuthVhiResponse {
 
     private String claimNumber;
     private AdjudicationClaimStatus claimStatus;
