@@ -33,10 +33,10 @@ public class CoverageEligibilityServiceImpl implements CoverageEligibilityServic
         coverageEligibilityRequestRepo.save(coverageEligibilityRequest);
         log.info("Coverage Eligibility Request Saved");
         CoverageEligibilityDTO coverageEligibilityDTO= new CoverageEligibilityDTO();
-        coverageEligibilityDTO.setRequestId(coverageEligibilityRequest.getId());
+        coverageEligibilityDTO.setReferenceId(coverageEligibilityRequest.getId());
         coverageEligibilityDTO.setInsurerCode(coverageEligibilityRequest.getInsurerCode());
         coverageEligibilityDTO.setSenderCode(coverageEligibilityRequest.getSenderCode());
-        coverageEligibilityDTO.setRequestType(coverageEligibilityRequest.getRequestType());
+        coverageEligibilityDTO.setMessageType(coverageEligibilityRequest.getRequestType());
         rabbitTemplate.convertAndSend(exchange,reqroutingKey,coverageEligibilityDTO);
         return "Coverage Eligibility request sent successfully";
     }

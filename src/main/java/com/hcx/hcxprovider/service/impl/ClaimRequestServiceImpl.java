@@ -35,8 +35,8 @@ public class ClaimRequestServiceImpl implements ClaimRequestService {
         claimRequestRepo.save(claimRequest);
         log.info("saved claim request");
         ClaimRequestDTO claimRequestDTO = new ClaimRequestDTO();
-        claimRequestDTO.setRequestId(claimRequest.getId());
-        claimRequestDTO.setRequestType(claimRequest.getRequestType());
+        claimRequestDTO.setReferenceId(claimRequest.getId());
+        claimRequestDTO.setMessageType(claimRequest.getRequestType());
         claimRequestDTO.setSenderCode(claimRequest.getSenderCode());
         claimRequestDTO.setInsurerCode(claimRequest.getInsurerCode());
         log.info("Claim Request: {}",claimRequest.getClaimRequest());
