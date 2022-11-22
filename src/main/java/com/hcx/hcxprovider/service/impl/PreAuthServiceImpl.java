@@ -98,13 +98,13 @@ public class PreAuthServiceImpl implements PreAuthService {
 
     @Override
     public String savePreAuthResponse(String pre) throws Exception {
-        File payloadFile = new ClassPathResource("input/jwePayload").getFile();
-        String preAuthRes = FileUtils.readFileToString(payloadFile);
+        //File payloadFile = new ClassPathResource("input/jwePayload").getFile();
+        //String preAuthRes = FileUtils.readFileToString(payloadFile);
         Operations operation = Operations.PRE_AUTH_ON_SUBMIT;
         HCXIntegrator.init(setConfig());
         Map<String,Object> output = new HashMap<>();
         Map<String,Object> input = new HashMap<>();
-        input.put("payload",preAuthRes);
+        input.put("payload",pre);
         HCXIncomingRequest hcxIncomingRequest = new HCXIncomingRequest();
         hcxIncomingRequest.process(JSONUtils.serialize(input),operation,output);
         //hcxIncomingRequest.decryptPayload(preAuthRes,output);
