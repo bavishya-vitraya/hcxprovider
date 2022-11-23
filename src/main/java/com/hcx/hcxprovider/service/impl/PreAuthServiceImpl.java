@@ -107,10 +107,10 @@ public class PreAuthServiceImpl implements PreAuthService {
         input.put("payload",pre);
         HCXIncomingRequest hcxIncomingRequest = new HCXIncomingRequest();
         hcxIncomingRequest.process(JSONUtils.serialize(input),operation,output);
-        //hcxIncomingRequest.decryptPayload(preAuthRes,output);
         log.info("Incoming Request: {}",output);
         String fhirPayload = (String) output.get("fhirPayload");
         PreAuthResponse preAuthResponse=new PreAuthResponse();
+        preAuthResponse.setResponseType("preAuthResponse");
         preAuthResponse.setFhirPayload(fhirPayload);
         preAuthResponseRepo.save(preAuthResponse);
         log.info("PreAuth Response saved");

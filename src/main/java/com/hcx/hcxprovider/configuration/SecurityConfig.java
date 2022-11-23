@@ -47,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
                http.csrf().disable().
-               authorizeRequests().antMatchers("/user/addUser","/user/login").permitAll()
+               authorizeRequests().antMatchers("/user/addUser","/user/login","/hcxProvider/response/preauth/on_submit").permitAll()
                .anyRequest().authenticated().and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
                http.addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);

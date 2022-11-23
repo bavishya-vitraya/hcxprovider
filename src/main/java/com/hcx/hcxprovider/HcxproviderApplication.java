@@ -6,6 +6,7 @@ import com.hcx.hcxprovider.dto.PreAuthVhiResponse;
 import io.hcxprotocol.impl.HCXOutgoingRequest;
 import io.hcxprotocol.init.HCXIntegrator;
 import io.hcxprotocol.utils.Operations;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.codesystems.Adjudication;
@@ -23,12 +24,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @SpringBootApplication
 public class HcxproviderApplication {
 
 	public static Map<String, Object> setPayorConfig() throws IOException {
 		Map<String, Object> config = new HashMap<>();
-		File file = new ClassPathResource("keys/vitraya-mock-payor-private-key.pem").getFile();
+		File file = new File("C:\\Users\\flora\\OneDrive\\Documents\\keys\\vitraya-mock-payor-private-key.pem");
 		String privateKey= FileUtils.readFileToString(file);
 		config.put("protocolBasePath", "http://staging-hcx.swasth.app/api/v0.7");
 		config.put("authBasePath","http://a9dd63de91ee94d59847a1225da8b111-273954130.ap-south-1.elb.amazonaws.com:8080/auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token");
