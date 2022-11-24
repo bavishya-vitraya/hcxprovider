@@ -7,11 +7,11 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class PreAuthDetails {
-    private String claimFlowType;
-    private Integer serviceTypeId;
+    private ClaimFlowType claimFlowType;
+    private int serviceTypeId;
     private Claim claim;
     private ClaimIllnessTreatmentDetails claimIllnessTreatmentDetails;
     private ClaimAdmissionDetails claimAdmissionDetails;
@@ -20,5 +20,4 @@ public class PreAuthDetails {
     private ProcedureMethod procedureMethod;
     private List<DocumentMaster> documentMasterList;
     private Illness illness;
-
 }

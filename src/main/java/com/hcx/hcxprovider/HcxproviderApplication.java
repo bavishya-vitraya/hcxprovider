@@ -2,14 +2,9 @@ package com.hcx.hcxprovider;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.google.common.primitives.Bytes;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.hcx.hcxprovider.dto.AttachmentDTO;
-import com.hcx.hcxprovider.dto.PreAuthDetails;
-import com.hcx.hcxprovider.dto.PreAuthVhiResponse;
+import com.hcx.hcxprovider.dto.*;
 import io.hcxprotocol.impl.HCXIncomingRequest;
 import io.hcxprotocol.impl.HCXOutgoingRequest;
 import io.hcxprotocol.init.HCXIntegrator;
@@ -18,6 +13,8 @@ import io.hcxprotocol.utils.Operations;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Claim;
+import org.hl7.fhir.r4.model.Procedure;
 import org.hl7.fhir.r4.model.codesystems.Adjudication;
 import org.hl7.fhir.r4.model.codesystems.ClaimType;
 import org.hl7.fhir.r4.model.codesystems.ProcessPriority;
@@ -149,6 +146,7 @@ public class HcxproviderApplication {
 		IParser parser = fhirctx.newJsonParser().setPrettyPrint(true);
 		Bundle bundle = parser.parseResource(Bundle.class, fhirPayload);
 		Claim claim;
+		com.hcx.hcxprovider.dto.Claim vhiClaim= new com.hcx.hcxprovider.dto.Claim();
 		for(Bundle.BundleEntryComponent entryComponent: bundle.getEntry()) {
 			String resourceType = entryComponent.getResource().getResourceType().toString();
 			log.info(String.valueOf(entryComponent.getResource().getResourceType()));
@@ -156,7 +154,13 @@ public class HcxproviderApplication {
 				 claim= (Claim) entryComponent.getResource();
 				 List<Claim.SupportingInformationComponent> supportingInfoList=new ArrayList<>();
 				supportingInfoList=claim.getSupportingInfo();
-				preAuthDetails.setClaimFlowType(claim.getUse().toString());
+
+				preAuthDetails.setClaimFlowType(ClaimFlowType.valueOf(claim.getUse().toString()));
+                vhiClaim.setCreatedDate(claim.getCreated());
+
+
+
+
 				for(Claim.SupportingInformationComponent supportingInfo:supportingInfoList){
 					List<Coding> codingList= supportingInfo.getCategory().getCoding();
 					for(Coding coding:codingList){
@@ -164,9 +168,23 @@ public class HcxproviderApplication {
 							String encodedString= supportingInfo.getValueStringType().toString();
 							 byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
 							 String attachment = new String(decodedBytes);
-							AttachmentDTO attachmentdto =  new Gson().fromJson(attachment, new TypeToken<AttachmentDTO>() {
+							AttachmentDTO attachmentDTO =  new Gson().fromJson(attachment, new TypeToken<AttachmentDTO>() {
 							}.getType());
-							 preAuthDetails.setServiceTypeId(attachmentdto.getServiceTypeId());
+							 vhiClaim.setId(attachmentDTO.getParentTableId());
+							 vhiClaim.setDeleted(attachmentDTO.isDeleted());
+							 vhiClaim.setUpdatedDate(attachmentDTO.getUpdatedDate());
+							 vhiClaim.setState(attachmentDTO.getState());
+							 vhiClaim.setStatus(attachmentDTO.getStatus());
+							 vhiClaim.setAge(attachmentDTO.getAge());
+                             vhiClaim.setProductCode(attachmentDTO.getProductCode());
+							 vhiClaim.setMedicalEventId(attachmentDTO.getMedicalEventId());
+
+							 preAuthDetails.setServiceTypeId(attachmentDTO.getServiceTypeId());
+
+
+						 }
+						 else if(coding.getDisplay().equalsIgnoreCase("PolicyInceptionDate")){
+                           vhiClaim.setPolicyInceptionDate(supportingInfo.getTimingDateType().getValue());
 						 }
 					}
 				}
@@ -174,6 +192,23 @@ public class HcxproviderApplication {
 			}
 			else if(resourceType.equalsIgnoreCase("patient")){
                 Patient patient= (Patient) entryComponent.getResource();
+				vhiClaim.setHospitalPatientId(patient.getIdentifier().get(0).getValue());
+				vhiClaim.setDob(patient.getBirthDate());
+				vhiClaim.setGender(patient.getGenderElement().getValueAsString());
+				vhiClaim.setPatientName(patient.getName().get(0).getNameAsSingleString());
+				vhiClaim.setPolicyHolderName(patient.getName().get(0).getNameAsSingleString());
+				List<ContactPoint> telecomList=patient.getTelecom();
+				 for(ContactPoint contactPoint:telecomList){
+					 if(contactPoint.getSystem()== ContactPoint.ContactPointSystem.PHONE){
+						 vhiClaim.setPatient_mobile_no(contactPoint.getValue());
+					 }
+					 if(contactPoint.getSystem()== ContactPoint.ContactPointSystem.EMAIL){
+						 vhiClaim.setPatient_email_id(contactPoint.getValue());
+					 }
+
+				 }
+				 vhiClaim.setAttendent_mobile_no(patient.getContact().get(0).getTelecom().get(0).getValue());
+
 			}
 			else if(resourceType.equalsIgnoreCase("procedure")){
                 Procedure procedure= (Procedure) entryComponent.getResource();
@@ -182,14 +217,35 @@ public class HcxproviderApplication {
 				Organization organization= new Organization();
 				if(entryComponent.getFullUrl().contains("InsurerOrganization")){
 					organization= (Organization) entryComponent.getResource();
+					vhiClaim.setInsuranceAgencyId(Integer.valueOf(organization.getIdentifier().get(0).getValue()));
 				}
 				else{
 					organization= (Organization) entryComponent.getResource();
+					List<Identifier> identifierList= organization.getIdentifier();
+					for(Identifier identifier:identifierList){
+						List<Coding> codingList=identifier.getType().getCoding();
+						for(Coding code:codingList){
+							if(code.getCode()=="PRN"){
+								vhiClaim.setHospitalId(Integer.valueOf(identifier.getValue()));
+							}
+						}
+					}
+					vhiClaim.setCityName(organization.getContact().get(0).getPurpose().getText());
 				}
 
 			}
 			else if(resourceType.equalsIgnoreCase("Practitioner")){
                 Practitioner practitioner= (Practitioner) entryComponent.getResource();
+				List<Identifier> identifierList= practitioner.getIdentifier();
+				for(Identifier identifier:identifierList){
+					List<Coding> codingList=identifier.getType().getCoding();
+					 for(Coding code:codingList){
+						 if(code.getCode()=="PLAC"){
+							 vhiClaim.setCreatorId(Long.valueOf(identifier.getValue()));
+						 }
+					 }
+				}
+
 			}
 			else if(resourceType.equalsIgnoreCase("Procedure")){
                  Procedure procedure= (Procedure) entryComponent.getResource();
@@ -197,13 +253,24 @@ public class HcxproviderApplication {
 			else if(resourceType.equalsIgnoreCase("Condition")){
                 Condition condition= (Condition) entryComponent.getResource();
 			}
+			else if(resourceType.equalsIgnoreCase("Coverage")){
+				Coverage coverage= (Coverage) entryComponent.getResource();
+				vhiClaim.setMedicalCardId(coverage.getSubscriberId());
+				vhiClaim.setPolicyNumber(coverage.getIdentifier().get(0).getValue());
+				vhiClaim.setPolicyType(PolicyType.valueOf(coverage.getType().getText()));
+				vhiClaim.setPolicyEndDate(coverage.getPeriod().getEnd());
+				vhiClaim.setPolicyName(coverage.getClass_().get(0).getValue());
+                vhiClaim.setPolicyStartDate(coverage.getPeriod().getStart());
+			}
+
 		}
+		log.info("vhiclaim{}",vhiClaim);
 	}
 	public static void main(String[] args) throws Exception {
 
 		SpringApplication.run(HcxproviderApplication.class, args);
 		getJWEResponsePayload();
-		buildVhiClaimRequest();
+		//buildVhiClaimRequest();
 	}
 
 }

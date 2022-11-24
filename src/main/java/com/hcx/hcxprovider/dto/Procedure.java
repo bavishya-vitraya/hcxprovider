@@ -4,17 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Procedure {
+import java.util.Date;
 
-   private Integer id;
-   private String createTime;
-   private boolean enabled;
-   private String description;
-   private Integer departmentId;
-   private String updateTime;
-   private String name;
-   private String procedureCode;
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Procedure {
+    private long id;
+    private Date createTime;
+    private boolean enabled;
+    private String description;
+    private int departmentId;
+    private Date updateTime;
+    private String name;
+    private String procedureCode;
 }
