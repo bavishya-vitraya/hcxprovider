@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,8 +16,8 @@ public class DocumentMaster {
     private String storageFileName;
     private String fileType;
     private boolean fileSupported;
-    private Date createTime;
-    private Date updateTime;
+    private String createTime;
+    private String updateTime;
     private String note;
     private int documentStatus;
 }

@@ -33,7 +33,7 @@ public class HcxproviderApplication {
 
 	public static Map<String, Object> setPayorConfig() throws IOException {
 		Map<String, Object> config = new HashMap<>();
-		File file = new File("C:\\Users\\flora\\OneDrive\\Documents\\keys\\vitraya-mock-payor-private-key.pem");
+		File file = new ClassPathResource("keys/vitraya-mock-payor-private-key.pem").getFile();;
 		String privateKey= FileUtils.readFileToString(file);
 		config.put("protocolBasePath", "http://staging-hcx.swasth.app/api/v0.7");
 		config.put("authBasePath","http://a9dd63de91ee94d59847a1225da8b111-273954130.ap-south-1.elb.amazonaws.com:8080/auth/realms/swasth-health-claim-exchange/protocol/openid-connect/token");
@@ -155,8 +155,8 @@ public class HcxproviderApplication {
 				 List<Claim.SupportingInformationComponent> supportingInfoList=new ArrayList<>();
 				supportingInfoList=claim.getSupportingInfo();
 
-				preAuthDetails.setClaimFlowType(ClaimFlowType.valueOf(claim.getUse().toString()));
-                vhiClaim.setCreatedDate(claim.getCreated());
+				preAuthDetails.setClaimFlowType(ClaimFlowType.PRE_AUTH);
+                vhiClaim.setCreatedDate(String.valueOf(claim.getCreated()));
 
 
 
@@ -172,7 +172,7 @@ public class HcxproviderApplication {
 							}.getType());
 							 vhiClaim.setId(attachmentDTO.getParentTableId());
 							 vhiClaim.setDeleted(attachmentDTO.isDeleted());
-							 vhiClaim.setUpdatedDate(attachmentDTO.getUpdatedDate());
+							 vhiClaim.setUpdatedDate(String.valueOf(attachmentDTO.getUpdatedDate()));
 							 vhiClaim.setState(attachmentDTO.getState());
 							 vhiClaim.setStatus(attachmentDTO.getStatus());
 							 vhiClaim.setAge(attachmentDTO.getAge());
@@ -184,7 +184,7 @@ public class HcxproviderApplication {
 
 						 }
 						 else if(coding.getDisplay().equalsIgnoreCase("PolicyInceptionDate")){
-                           vhiClaim.setPolicyInceptionDate(supportingInfo.getTimingDateType().getValue());
+                           vhiClaim.setPolicyInceptionDate(String.valueOf(supportingInfo.getTimingDateType().getValue()));
 						 }
 					}
 				}
@@ -193,7 +193,7 @@ public class HcxproviderApplication {
 			else if(resourceType.equalsIgnoreCase("patient")){
                 Patient patient= (Patient) entryComponent.getResource();
 				vhiClaim.setHospitalPatientId(patient.getIdentifier().get(0).getValue());
-				vhiClaim.setDob(patient.getBirthDate());
+				vhiClaim.setDob(String.valueOf(patient.getBirthDate()));
 				vhiClaim.setGender(patient.getGenderElement().getValueAsString());
 				vhiClaim.setPatientName(patient.getName().get(0).getNameAsSingleString());
 				vhiClaim.setPolicyHolderName(patient.getName().get(0).getNameAsSingleString());
@@ -258,9 +258,9 @@ public class HcxproviderApplication {
 				vhiClaim.setMedicalCardId(coverage.getSubscriberId());
 				vhiClaim.setPolicyNumber(coverage.getIdentifier().get(0).getValue());
 				vhiClaim.setPolicyType(PolicyType.valueOf(coverage.getType().getText()));
-				vhiClaim.setPolicyEndDate(coverage.getPeriod().getEnd());
+				vhiClaim.setPolicyEndDate(String.valueOf(coverage.getPeriod().getEnd()));
 				vhiClaim.setPolicyName(coverage.getClass_().get(0).getValue());
-                vhiClaim.setPolicyStartDate(coverage.getPeriod().getStart());
+                vhiClaim.setPolicyStartDate(String.valueOf(coverage.getPeriod().getStart()));
 			}
 
 		}
@@ -270,7 +270,7 @@ public class HcxproviderApplication {
 
 		SpringApplication.run(HcxproviderApplication.class, args);
 		getJWEResponsePayload();
-		//buildVhiClaimRequest();
+		buildVhiClaimRequest();
 	}
 
 }

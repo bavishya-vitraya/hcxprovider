@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -20,7 +19,7 @@ public class HospitalServiceType {
     private boolean singlePrivateAC;
     private BigDecimal roomTariffPerDay;
     private ServiceType serviceType;
-    private Date createTime;
-    private Date updateTime;
+    private String createTime;
+    private String updateTime;
     private String serviceCode;
 }
