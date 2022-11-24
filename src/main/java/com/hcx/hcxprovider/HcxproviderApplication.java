@@ -147,23 +147,52 @@ public class HcxproviderApplication {
 		Bundle bundle = parser.parseResource(Bundle.class, fhirPayload);
 		Claim claim;
 		com.hcx.hcxprovider.dto.Claim vhiClaim= new com.hcx.hcxprovider.dto.Claim();
+		ClaimIllnessTreatmentDetails claimIllnessTreatmentDetails= new ClaimIllnessTreatmentDetails();
+		ClaimAdmissionDetails 	claimAdmissionDetails= new 	ClaimAdmissionDetails();
+		HospitalServiceType  hospitalServiceType= new  HospitalServiceType();
+		com.hcx.hcxprovider.dto.Procedure vhiProcedure= new com.hcx.hcxprovider.dto.Procedure();
+		ProcedureMethod procedureMethod= new ProcedureMethod();
+		Illness illness= new Illness();
 		for(Bundle.BundleEntryComponent entryComponent: bundle.getEntry()) {
 			String resourceType = entryComponent.getResource().getResourceType().toString();
 			log.info(String.valueOf(entryComponent.getResource().getResourceType()));
 			if (resourceType.equalsIgnoreCase("Claim")) {
 				 claim= (Claim) entryComponent.getResource();
-				 List<Claim.SupportingInformationComponent> supportingInfoList=new ArrayList<>();
-				supportingInfoList=claim.getSupportingInfo();
-
 				preAuthDetails.setClaimFlowType(ClaimFlowType.PRE_AUTH);
-                vhiClaim.setCreatedDate(String.valueOf(claim.getCreated()));
+				vhiClaim.setCreatedDate(String.valueOf(claim.getCreated()));
+				 List<Claim.ItemComponent> itemList = claim.getItem();
+				 for(Claim.ItemComponent item:itemList){
+					 List<Coding> productCodingList =item.getProductOrService().getCoding();
+					 for(Coding coding: productCodingList ){
+						 if(coding.getDisplay()=="room type"){
+							 claimAdmissionDetails.setRoomType(item.getDetail().get(0).getProductOrService().getText());
+							 hospitalServiceType.setRoomType(item.getDetail().get(0).getProductOrService().getText());
+						 }
+						 else if(coding.getDisplay().equalsIgnoreCase("Expense")){
+							 hospitalServiceType.setRoomTariffPerDay(item.getUnitPrice().getValue());
+						 }
+					 }
 
+				 }
 
+				 List<Claim.SupportingInformationComponent> supportingInfoList=new ArrayList<>();
+				 supportingInfoList=claim.getSupportingInfo();
+				 for(Claim.SupportingInformationComponent supportingInfo:supportingInfoList){
+					 List<Coding> codingList= supportingInfo.getCode().getCoding();
+					 for(Coding coding:codingList){
+						 if(coding.getDisplay().equalsIgnoreCase("PatientICUStay")){
+							 claimAdmissionDetails.setIcuStay(supportingInfo.getValueBooleanType().booleanValue());
+						 }
+						 else if(coding.getDisplay().equalsIgnoreCase("Admission date -Discharge date")){
+							 claimAdmissionDetails.setAdmissionDate(String.valueOf(supportingInfo.getTimingDateType().getValue()));
+						 }
+						 else if(coding.getDisplay().equalsIgnoreCase("Discharge start-discharge end time")){
+							 claimAdmissionDetails.setDischargeDate(String.valueOf(supportingInfo.getTimingDateType().getValue()));
+						 }
+					 }
 
-
-				for(Claim.SupportingInformationComponent supportingInfo:supportingInfoList){
-					List<Coding> codingList= supportingInfo.getCategory().getCoding();
-					for(Coding coding:codingList){
+					List<Coding> categoryCodingList= supportingInfo.getCategory().getCoding();
+					for(Coding coding:categoryCodingList){
 						 if(coding.getDisplay().equalsIgnoreCase("attachment.json")){
 							String encodedString= supportingInfo.getValueStringType().toString();
 							 byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
@@ -179,13 +208,45 @@ public class HcxproviderApplication {
                              vhiClaim.setProductCode(attachmentDTO.getProductCode());
 							 vhiClaim.setMedicalEventId(attachmentDTO.getMedicalEventId());
 
-							 preAuthDetails.setServiceTypeId(attachmentDTO.getServiceTypeId());
+							 claimIllnessTreatmentDetails.setClaimId(attachmentDTO.getParentTableId());
+							 claimIllnessTreatmentDetails.setChronicIllnessDetails(attachmentDTO.getChronicIllnessDetailsJSON().getChronicIllnessList().toString());
+							 claimIllnessTreatmentDetails.setProcedureCorporateMappingId(attachmentDTO.getProcedureCorporateMappingId());
+							 claimIllnessTreatmentDetails.setProcedureId(attachmentDTO.getProcedureId());
+							 claimIllnessTreatmentDetails.setLeftImplant(attachmentDTO.getLeftImplant());
+							 claimIllnessTreatmentDetails.setRightImplant(attachmentDTO.getRightImplant());
+							 if(attachmentDTO.getChronicIllnessDetailsJSON().getChronicIllnessList()!=null) {
+								 claimIllnessTreatmentDetails.setChronicIllnessDetailsJSON(attachmentDTO.getChronicIllnessDetailsJSON());
+							 }
 
+							 claimAdmissionDetails.setClaimId(attachmentDTO.getParentTableId());
+							 claimAdmissionDetails.setHospitalServiceTypeId(attachmentDTO.getHospitalServiceTypeId());
+							 claimAdmissionDetails.setStayDuration(attachmentDTO.getStayDuration());
+							 claimAdmissionDetails.setPackageAmount(attachmentDTO.getPackageAmount());
+							 claimAdmissionDetails.setCostEstimation(attachmentDTO.getCostEstimation());
+							 claimAdmissionDetails.setIcuStayDuration(attachmentDTO.getIcuStayDuration());
+							 claimAdmissionDetails.setIcuServiceTypeId(attachmentDTO.getIcuServiceTypeId());
+
+							 hospitalServiceType.setVitrayaRoomCategory(VitrayaRoomCategory.valueOf(attachmentDTO.getVitrayaRoomCategory()));
+							 hospitalServiceType.setInsurerRoomType(attachmentDTO.getInsurerRoomType());
+							 hospitalServiceType.setSinglePrivateAC(attachmentDTO.isSinglePrivateAC());
+							 hospitalServiceType.setServiceType(attachmentDTO.getServiceType());
+
+							 illness.setIllnessCategoryId(attachmentDTO.getIllnessCategoryId());
+							 illness.setIllnessName(attachmentDTO.getIllnessName());
+							 illness.setDefaultICDCode(attachmentDTO.getDefaultICDCode());
+
+
+							 preAuthDetails.setServiceTypeId(attachmentDTO.getServiceTypeId());
+							 preAuthDetails.setDocumentMasterList(attachmentDTO.getDocumentMasterList());
 
 						 }
 						 else if(coding.getDisplay().equalsIgnoreCase("PolicyInceptionDate")){
                            vhiClaim.setPolicyInceptionDate(String.valueOf(supportingInfo.getTimingDateType().getValue()));
 						 }
+						 else if(coding.getDisplay().equalsIgnoreCase("Treatment detail")){
+							 claimIllnessTreatmentDetails.setLineOfTreatmentDetails(supportingInfo.getValueStringType().getValue());
+						 }
+
 					}
 				}
 
@@ -212,6 +273,10 @@ public class HcxproviderApplication {
 			}
 			else if(resourceType.equalsIgnoreCase("procedure")){
                 Procedure procedure= (Procedure) entryComponent.getResource();
+				vhiProcedure.setDescription(procedure.getNote().get(0).getText());
+				vhiProcedure.setName(procedure.getCode().getText());
+				procedureMethod.setProcedureMethodName(procedure.getCode().getText());
+
 			}
 			else if(resourceType.equalsIgnoreCase("organization")){
 				Organization organization= new Organization();
@@ -219,7 +284,7 @@ public class HcxproviderApplication {
 					organization= (Organization) entryComponent.getResource();
 					vhiClaim.setInsuranceAgencyId(Integer.valueOf(organization.getIdentifier().get(0).getValue()));
 				}
-				else{
+				else if(entryComponent.getFullUrl().contains("ProviderOrganization/1")){
 					organization= (Organization) entryComponent.getResource();
 					List<Identifier> identifierList= organization.getIdentifier();
 					for(Identifier identifier:identifierList){
@@ -236,6 +301,17 @@ public class HcxproviderApplication {
 			}
 			else if(resourceType.equalsIgnoreCase("Practitioner")){
                 Practitioner practitioner= (Practitioner) entryComponent.getResource();
+                List<HumanName> nameList=practitioner.getName();
+                List<Practitioner.PractitionerQualificationComponent> qualificationList= practitioner.getQualification();
+				DoctorDetailsDto doctor= new DoctorDetailsDto();
+				for(HumanName name:nameList){
+					doctor.setDoctorName(name.getGivenAsSingleString());
+				}
+				for(Practitioner.PractitionerQualificationComponent qualification:qualificationList){
+					doctor.setQualification(qualification.getCode().getText());
+				}
+                claimIllnessTreatmentDetails.setDoctorsDetails(new Gson().toJson(doctor));
+
 				List<Identifier> identifierList= practitioner.getIdentifier();
 				for(Identifier identifier:identifierList){
 					List<Coding> codingList=identifier.getType().getCoding();
@@ -246,12 +322,15 @@ public class HcxproviderApplication {
 					 }
 				}
 
+
 			}
 			else if(resourceType.equalsIgnoreCase("Procedure")){
                  Procedure procedure= (Procedure) entryComponent.getResource();
+
 			}
 			else if(resourceType.equalsIgnoreCase("Condition")){
                 Condition condition= (Condition) entryComponent.getResource();
+				claimIllnessTreatmentDetails.setDateOfDiagnosis(String.valueOf(condition.getRecordedDate()));
 			}
 			else if(resourceType.equalsIgnoreCase("Coverage")){
 				Coverage coverage= (Coverage) entryComponent.getResource();
@@ -264,7 +343,14 @@ public class HcxproviderApplication {
 			}
 
 		}
-		log.info("vhiclaim{}",vhiClaim);
+		preAuthDetails.setClaim(vhiClaim);
+		preAuthDetails.setClaimIllnessTreatmentDetails(claimIllnessTreatmentDetails);
+		preAuthDetails.setClaimAdmissionDetails(claimAdmissionDetails);
+		preAuthDetails.setHospitalServiceType(hospitalServiceType);
+		preAuthDetails.setProcedure(vhiProcedure);
+		preAuthDetails.setProcedureMethod(procedureMethod);
+		preAuthDetails.setIllness(illness);
+		log.info("preAuthDetails{}",preAuthDetails);
 	}
 	public static void main(String[] args) throws Exception {
 

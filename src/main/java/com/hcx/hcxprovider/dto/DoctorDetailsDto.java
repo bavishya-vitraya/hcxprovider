@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Procedure {
-    private String description;
-    private String name;
+public class DoctorDetailsDto {
+    private String doctorName;
+    private String qualification;
 }

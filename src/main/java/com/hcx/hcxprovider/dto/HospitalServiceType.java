@@ -11,15 +11,10 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class HospitalServiceType {
-    private int id;
-    private int hospitalId;
     private VitrayaRoomCategory vitrayaRoomCategory;
     private String roomType;
     private String insurerRoomType;
     private boolean singlePrivateAC;
     private BigDecimal roomTariffPerDay;
     private ServiceType serviceType;
-    private String createTime;
-    private String updateTime;
-    private String serviceCode;
 }

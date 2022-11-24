@@ -40,4 +40,5 @@ public class AttachmentDTO {
     private String defaultICDCode;
     private int illnessCategoryId;//illness
     private List<DocumentMaster> documentMasterList;
+    private ChronicIllnessDetailsJSON ChronicIllnessDetailsJSON;
 }
