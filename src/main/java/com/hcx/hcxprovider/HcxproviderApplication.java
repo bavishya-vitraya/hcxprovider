@@ -2,9 +2,18 @@ package com.hcx.hcxprovider;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.common.primitives.Bytes;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.hcx.hcxprovider.dto.AttachmentDTO;
+import com.hcx.hcxprovider.dto.PreAuthDetails;
 import com.hcx.hcxprovider.dto.PreAuthVhiResponse;
+import io.hcxprotocol.impl.HCXIncomingRequest;
 import io.hcxprotocol.impl.HCXOutgoingRequest;
 import io.hcxprotocol.init.HCXIntegrator;
+import io.hcxprotocol.utils.JSONUtils;
 import io.hcxprotocol.utils.Operations;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -19,10 +28,7 @@ import org.springframework.core.io.ClassPathResource;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @SpringBootApplication
@@ -123,10 +129,81 @@ public class HcxproviderApplication {
 		Boolean res = hcxOutgoingRequest.generate(messageString,operation,actionJwe,status,output);
 		System.out.println("{}"+res+output);
 	}
+
+
+	public static void buildVhiClaimRequest() throws Exception {
+	  File requestfile = new ClassPathResource("input/jweResponse").getFile();
+		String request = FileUtils.readFileToString(requestfile);
+		Operations operation = Operations.PRE_AUTH_SUBMIT;
+		HCXIntegrator.init(setPayorConfig());
+		Map<String,Object> output = new HashMap<>();
+		Map<String,Object> input = new HashMap<>();
+		input.put("payload",request);
+		HCXIncomingRequest hcxIncomingRequest = new HCXIncomingRequest();
+		hcxIncomingRequest.process(JSONUtils.serialize(input),operation,output);
+		log.info("Incoming Request: {}",output);
+		String fhirPayload = (String) output.get("fhirPayload");
+
+		PreAuthDetails preAuthDetails= new PreAuthDetails();
+		FhirContext fhirctx = FhirContext.forR4();
+		IParser parser = fhirctx.newJsonParser().setPrettyPrint(true);
+		Bundle bundle = parser.parseResource(Bundle.class, fhirPayload);
+		Claim claim;
+		for(Bundle.BundleEntryComponent entryComponent: bundle.getEntry()) {
+			String resourceType = entryComponent.getResource().getResourceType().toString();
+			log.info(String.valueOf(entryComponent.getResource().getResourceType()));
+			if (resourceType.equalsIgnoreCase("Claim")) {
+				 claim= (Claim) entryComponent.getResource();
+				 List<Claim.SupportingInformationComponent> supportingInfoList=new ArrayList<>();
+				supportingInfoList=claim.getSupportingInfo();
+				preAuthDetails.setClaimFlowType(claim.getUse().toString());
+				for(Claim.SupportingInformationComponent supportingInfo:supportingInfoList){
+					List<Coding> codingList= supportingInfo.getCategory().getCoding();
+					for(Coding coding:codingList){
+						 if(coding.getDisplay().equalsIgnoreCase("attachment.json")){
+							String encodedString= supportingInfo.getValueStringType().toString();
+							 byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
+							 String attachment = new String(decodedBytes);
+							AttachmentDTO attachmentdto =  new Gson().fromJson(attachment, new TypeToken<AttachmentDTO>() {
+							}.getType());
+							 preAuthDetails.setServiceTypeId(attachmentdto.getServiceTypeId());
+						 }
+					}
+				}
+
+			}
+			else if(resourceType.equalsIgnoreCase("patient")){
+                Patient patient= (Patient) entryComponent.getResource();
+			}
+			else if(resourceType.equalsIgnoreCase("procedure")){
+                Procedure procedure= (Procedure) entryComponent.getResource();
+			}
+			else if(resourceType.equalsIgnoreCase("organization")){
+				Organization organization= new Organization();
+				if(entryComponent.getFullUrl().contains("InsurerOrganization")){
+					organization= (Organization) entryComponent.getResource();
+				}
+				else{
+					organization= (Organization) entryComponent.getResource();
+				}
+
+			}
+			else if(resourceType.equalsIgnoreCase("Practitioner")){
+                Practitioner practitioner= (Practitioner) entryComponent.getResource();
+			}
+			else if(resourceType.equalsIgnoreCase("Procedure")){
+                 Procedure procedure= (Procedure) entryComponent.getResource();
+			}
+			else if(resourceType.equalsIgnoreCase("Condition")){
+                Condition condition= (Condition) entryComponent.getResource();
+			}
+		}
+	}
 	public static void main(String[] args) throws Exception {
 
 		SpringApplication.run(HcxproviderApplication.class, args);
 		getJWEResponsePayload();
+		buildVhiClaimRequest();
 	}
 
 }
