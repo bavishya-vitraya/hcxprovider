@@ -164,7 +164,7 @@ public class HcxproviderApplication {
 				 for(Claim.ItemComponent item:itemList){
 					 List<Coding> productCodingList =item.getProductOrService().getCoding();
 					 for(Coding coding: productCodingList ){
-						 if(coding.getDisplay()=="room type"){
+						 if(coding.getDisplay().equalsIgnoreCase("room type")){
 							 claimAdmissionDetails.setRoomType(item.getDetail().get(0).getProductOrService().getText());
 							 hospitalServiceType.setRoomType(item.getDetail().get(0).getProductOrService().getText());
 						 }
@@ -290,7 +290,7 @@ public class HcxproviderApplication {
 					for(Identifier identifier:identifierList){
 						List<Coding> codingList=identifier.getType().getCoding();
 						for(Coding code:codingList){
-							if(code.getCode()=="PRN"){
+							if(code.getCode().equalsIgnoreCase("PRN")){
 								vhiClaim.setHospitalId(Integer.valueOf(identifier.getValue()));
 							}
 						}
@@ -316,7 +316,7 @@ public class HcxproviderApplication {
 				for(Identifier identifier:identifierList){
 					List<Coding> codingList=identifier.getType().getCoding();
 					 for(Coding code:codingList){
-						 if(code.getCode()=="PLAC"){
+						 if(code.getCode().equalsIgnoreCase("PLAC")){
 							 vhiClaim.setCreatorId(Long.valueOf(identifier.getValue()));
 						 }
 					 }
@@ -350,7 +350,7 @@ public class HcxproviderApplication {
 		preAuthDetails.setProcedure(vhiProcedure);
 		preAuthDetails.setProcedureMethod(procedureMethod);
 		preAuthDetails.setIllness(illness);
-		log.info("preAuthDetails{}",preAuthDetails);
+		log.info("preAuthDetails{}",new Gson().toJson(preAuthDetails));
 	}
 	public static void main(String[] args) throws Exception {
 
