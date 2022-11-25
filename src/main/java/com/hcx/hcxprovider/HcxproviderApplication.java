@@ -350,9 +350,13 @@ public class HcxproviderApplication {
 				vhiClaim.setPolicyType(PolicyType.valueOf(coverage.getType().getText()));
 				vhiClaim.setPolicyEndDate(String.valueOf(coverage.getPeriod().getEnd()));
 				vhiClaim.setPolicyName(coverage.getClass_().get(0).getValue());
+				SimpleDateFormat fhirdateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
 				SimpleDateFormat dateformat = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss a");
-				Date d = coverage.getPeriod().getStart();
-                vhiClaim.setPolicyStartDate(dateformat.format(d));
+				Date d1 = coverage.getPeriod().getStart();
+				String d = fhirdateformat.format(d1);
+				log.info("Date:"+d);
+                Date d2 = fhirdateformat.parse(d);
+				vhiClaim.setPolicyStartDate(dateformat.format(d2));
 			}
 
 		}
