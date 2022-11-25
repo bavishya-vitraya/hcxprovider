@@ -4,11 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GalaxyFile {
-    private String name;
-    private String docId;
-    private String fileName;
+public class AttachmentResDTO {
+
+    private String query;
+    private List<FileDTO> files;
+
 }

@@ -46,12 +46,27 @@ public class HcxproviderApplication {
 	}
 	public static void getJWEResponsePayload() throws Exception {
 		PreAuthVhiResponse vhiResponse = new PreAuthVhiResponse();
+		FileDTO file= new FileDTO();
+		file.setName("GAL_PreauthInitialApprovalLetter_CLMG_2023_161200_1017744_1667392133684.pdf");
+		file.setDocId("117833144");
+		List<FileDTO> fileDTOList= new ArrayList<>();
+		fileDTOList.add(file);
+
 		// claim response will come from payor connector apis - hard coded for now
 		vhiResponse.setClaimNumber("CIR/2023/161200/1019485");
 		vhiResponse.setClaimStatus(PreAuthVhiResponse.AdjudicationClaimStatus.APPROVED);
 		vhiResponse.setClaimStatusInString("Approved");
 		vhiResponse.setQuery("SUB-LIMIT APPLICABLE.\\n\\nPlease send us indoor case sheets, investigation reports, OT notes, post OP X-Ray images, implant invoices if applicable, discharge summary,  final bill with break up and other related documents.");
+		vhiResponse.setFiles(fileDTOList);
 		vhiResponse.setApprovedAmount(BigDecimal.valueOf(20000));
+
+
+		AttachmentResDTO attachmentResDTO = new AttachmentResDTO();
+		attachmentResDTO.setQuery(vhiResponse.getQuery());
+		attachmentResDTO.setFiles(vhiResponse.getFiles());
+
+		String attachmentString = new Gson().toJson(attachmentResDTO);
+		String encodedAttachement = Base64.getUrlEncoder().encodeToString(attachmentString.getBytes());
 
 		Patient patient = new Patient();// should fetch from claim request
 		patient.setId("Patient/1");
@@ -79,7 +94,7 @@ public class HcxproviderApplication {
 		claimResponse.setPreAuthRef(vhiResponse.getClaimNumber());
 		claimResponse.setOutcome(ClaimResponse.RemittanceOutcome.COMPLETE); // no approved enum provided
 		claimResponse.setDisposition(vhiResponse.getClaimStatusInString());
-		claimResponse.addProcessNote().setText(vhiResponse.getQuery());
+		claimResponse.addProcessNote().setType(Enumerations.NoteType.DISPLAY).setText(encodedAttachement);
 		claimResponse.addTotal().setAmount(new Money().setCurrency("INR").setValue(vhiResponse.getApprovedAmount())).setCategory(new CodeableConcept(new Coding().setCode(Adjudication.ELIGIBLE.toCode()).setSystem("http://terminology.hl7.org/CodeSystem/adjudication")));
 		claimResponse.setStatus(ClaimResponse.ClaimResponseStatus.ACTIVE);
 		claimResponse.setType(new CodeableConcept(new Coding().setCode(ClaimType.INSTITUTIONAL.toCode()).setSystem("http://terminology.hl7.org/CodeSystem/claim-type")));

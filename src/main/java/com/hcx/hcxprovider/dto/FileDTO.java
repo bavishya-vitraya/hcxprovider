@@ -8,9 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FileDTO {
-    private String docType;
-    private String content;
-    private String mimeType;
     private String name;
     private String docId;
 }

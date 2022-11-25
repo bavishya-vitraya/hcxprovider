@@ -19,7 +19,7 @@ public class PreAuthVhiResponse {
     private String claimStatusInString;
     private ClaimAdjudicationData adjudicationData;
     private String query;
-    private List<GalaxyFile> files;
+    private List<FileDTO> files;
     private BigDecimal approvedAmount;
 
     public enum AdjudicationStatus {
