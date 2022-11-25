@@ -26,6 +26,7 @@ import org.springframework.core.io.ClassPathResource;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Slf4j
@@ -349,7 +350,9 @@ public class HcxproviderApplication {
 				vhiClaim.setPolicyType(PolicyType.valueOf(coverage.getType().getText()));
 				vhiClaim.setPolicyEndDate(String.valueOf(coverage.getPeriod().getEnd()));
 				vhiClaim.setPolicyName(coverage.getClass_().get(0).getValue());
-                vhiClaim.setPolicyStartDate(String.valueOf(coverage.getPeriod().getStart()));
+				SimpleDateFormat dateformat = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss a");
+				Date d = coverage.getPeriod().getStart();
+                vhiClaim.setPolicyStartDate(dateformat.format(d));
 			}
 
 		}
