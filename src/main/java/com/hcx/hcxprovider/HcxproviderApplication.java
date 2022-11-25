@@ -5,6 +5,7 @@ import ca.uhn.fhir.parser.IParser;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.hcx.hcxprovider.dto.*;
+import com.hcx.hcxprovider.util.DateUtils;
 import io.hcxprotocol.impl.HCXIncomingRequest;
 import io.hcxprotocol.impl.HCXOutgoingRequest;
 import io.hcxprotocol.init.HCXIntegrator;
@@ -174,7 +175,7 @@ public class HcxproviderApplication {
 			if (resourceType.equalsIgnoreCase("Claim")) {
 				 claim= (Claim) entryComponent.getResource();
 				preAuthDetails.setClaimFlowType(ClaimFlowType.PRE_AUTH);
-				vhiClaim.setCreatedDate(String.valueOf(claim.getCreated()));
+				vhiClaim.setCreatedDate(DateUtils.parseDateInFormat(claim.getCreated()));
 				 List<Claim.ItemComponent> itemList = claim.getItem();
 				 for(Claim.ItemComponent item:itemList){
 					 List<Coding> productCodingList =item.getProductOrService().getCoding();
@@ -195,33 +196,30 @@ public class HcxproviderApplication {
 				 for(Claim.SupportingInformationComponent supportingInfo:supportingInfoList){
 					 List<Coding> codingList= supportingInfo.getCode().getCoding();
 					 for(Coding coding:codingList){
-						 if(coding.getDisplay().equalsIgnoreCase("PatientICUStay")){
+						 if(coding.getCode().equalsIgnoreCase("ONS-6")){
 							 claimAdmissionDetails.setIcuStay(supportingInfo.getValueBooleanType().booleanValue());
 						 }
-						 else if(coding.getDisplay().equalsIgnoreCase("Admission date -Discharge date")){
+						 else if(coding.getCode().equalsIgnoreCase("ONS-1")){
 							 claimAdmissionDetails.setAdmissionDate(String.valueOf(supportingInfo.getTimingDateType().getValue()));
 						 }
-						 else if(coding.getDisplay().equalsIgnoreCase("Discharge start-discharge end time")){
+						 else if(coding.getCode().equalsIgnoreCase("ONS-2")){
 							 claimAdmissionDetails.setDischargeDate(String.valueOf(supportingInfo.getTimingDateType().getValue()));
 						 }
-					 }
-
-					List<Coding> categoryCodingList= supportingInfo.getCategory().getCoding();
-					for(Coding coding:categoryCodingList){
-						 if(coding.getDisplay().equalsIgnoreCase("attachment.json")){
-							String encodedString= supportingInfo.getValueStringType().toString();
+						 else if(coding.getCode().equalsIgnoreCase("INF-1")){
+							 String encodedString= supportingInfo.getValueStringType().toString();
 							 byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
 							 String attachment = new String(decodedBytes);
-							AttachmentDTO attachmentDTO =  new Gson().fromJson(attachment, new TypeToken<AttachmentDTO>() {
-							}.getType());
+							 AttachmentDTO attachmentDTO =  new Gson().fromJson(attachment, new TypeToken<AttachmentDTO>() {
+							 }.getType());
 							 vhiClaim.setId(attachmentDTO.getParentTableId());
 							 vhiClaim.setDeleted(attachmentDTO.isDeleted());
 							 vhiClaim.setUpdatedDate(String.valueOf(attachmentDTO.getUpdatedDate()));
 							 vhiClaim.setState(attachmentDTO.getState());
 							 vhiClaim.setStatus(attachmentDTO.getStatus());
 							 vhiClaim.setAge(attachmentDTO.getAge());
-                             vhiClaim.setProductCode(attachmentDTO.getProductCode());
+							 vhiClaim.setProductCode(attachmentDTO.getProductCode());
 							 vhiClaim.setMedicalEventId(attachmentDTO.getMedicalEventId());
+							 vhiClaim.setPolicyInceptionDate(attachmentDTO.getPolicyInceptionDate());
 
 							 claimIllnessTreatmentDetails.setClaimId(attachmentDTO.getParentTableId());
 							 claimIllnessTreatmentDetails.setChronicIllnessDetails(attachmentDTO.getChronicIllnessDetailsJSON().getChronicIllnessList().toString());
@@ -253,16 +251,13 @@ public class HcxproviderApplication {
 
 							 preAuthDetails.setServiceTypeId(attachmentDTO.getServiceTypeId());
 							 preAuthDetails.setDocumentMasterList(attachmentDTO.getDocumentMasterList());
-
 						 }
-						 else if(coding.getDisplay().equalsIgnoreCase("PolicyInceptionDate")){
-                           vhiClaim.setPolicyInceptionDate(String.valueOf(supportingInfo.getTimingDateType().getValue()));
-						 }
-						 else if(coding.getDisplay().equalsIgnoreCase("Treatment detail")){
+						 else if(coding.getCode().equalsIgnoreCase("TRD-3")){
 							 claimIllnessTreatmentDetails.setLineOfTreatmentDetails(supportingInfo.getValueStringType().getValue());
 						 }
+					 }
 
-					}
+
 				}
 
 			}
