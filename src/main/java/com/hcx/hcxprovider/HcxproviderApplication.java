@@ -176,16 +176,12 @@ public class HcxproviderApplication {
 			if (resourceType.equalsIgnoreCase("Claim")) {
 				 claim= (Claim) entryComponent.getResource();
 				preAuthDetails.setClaimFlowType(ClaimFlowType.PRE_AUTH);
-				vhiClaim.setCreatedDate(DateUtils.parseDateInFormat(claim.getCreated()));
+				vhiClaim.setCreatedDate(DateUtils.formatDate(claim.getCreated()));
 				 List<Claim.ItemComponent> itemList = claim.getItem();
 				 for(Claim.ItemComponent item:itemList){
 					 List<Coding> productCodingList =item.getProductOrService().getCoding();
 					 for(Coding coding: productCodingList ){
-						 if(coding.getDisplay().equalsIgnoreCase("room type")){
-							 claimAdmissionDetails.setRoomType(item.getDetail().get(0).getProductOrService().getText());
-							 hospitalServiceType.setRoomType(item.getDetail().get(0).getProductOrService().getText());
-						 }
-						 else if(coding.getDisplay().equalsIgnoreCase("Expense")){
+						if(coding.getDisplay().equalsIgnoreCase("Expense")){
 							 hospitalServiceType.setRoomTariffPerDay(item.getUnitPrice().getValue());
 						 }
 					 }
@@ -201,10 +197,10 @@ public class HcxproviderApplication {
 							 claimAdmissionDetails.setIcuStay(supportingInfo.getValueBooleanType().booleanValue());
 						 }
 						 else if(coding.getCode().equalsIgnoreCase("ONS-1")){
-							 claimAdmissionDetails.setAdmissionDate(String.valueOf(supportingInfo.getTimingDateType().getValue()));
+							 claimAdmissionDetails.setAdmissionDate(DateUtils.formatDate(supportingInfo.getTimingDateType().getValue()));
 						 }
 						 else if(coding.getCode().equalsIgnoreCase("ONS-2")){
-							 claimAdmissionDetails.setDischargeDate(String.valueOf(supportingInfo.getTimingDateType().getValue()));
+							 claimAdmissionDetails.setDischargeDate(DateUtils.formatDate(supportingInfo.getTimingDateType().getValue()));
 						 }
 						 else if(coding.getCode().equalsIgnoreCase("INF-1")){
 							 String encodedString= supportingInfo.getValueStringType().toString();
@@ -214,7 +210,7 @@ public class HcxproviderApplication {
 							 }.getType());
 							 vhiClaim.setId(attachmentDTO.getParentTableId());
 							 vhiClaim.setDeleted(attachmentDTO.isDeleted());
-							 vhiClaim.setUpdatedDate(String.valueOf(attachmentDTO.getUpdatedDate()));
+							 vhiClaim.setUpdatedDate(DateUtils.formatDate(attachmentDTO.getUpdatedDate()));
 							 vhiClaim.setState(attachmentDTO.getState());
 							 vhiClaim.setStatus(attachmentDTO.getStatus());
 							 vhiClaim.setAge(attachmentDTO.getAge());
@@ -239,7 +235,9 @@ public class HcxproviderApplication {
 							 claimAdmissionDetails.setCostEstimation(attachmentDTO.getCostEstimation());
 							 claimAdmissionDetails.setIcuStayDuration(attachmentDTO.getIcuStayDuration());
 							 claimAdmissionDetails.setIcuServiceTypeId(attachmentDTO.getIcuServiceTypeId());
+							 claimAdmissionDetails.setRoomType(attachmentDTO.getRoomType());
 
+							 hospitalServiceType.setRoomType(attachmentDTO.getRoomType());
 							 hospitalServiceType.setVitrayaRoomCategory(VitrayaRoomCategory.valueOf(attachmentDTO.getVitrayaRoomCategory()));
 							 hospitalServiceType.setInsurerRoomType(attachmentDTO.getInsurerRoomType());
 							 hospitalServiceType.setSinglePrivateAC(attachmentDTO.isSinglePrivateAC());
@@ -249,6 +247,7 @@ public class HcxproviderApplication {
 							 illness.setIllnessName(attachmentDTO.getIllnessName());
 							 illness.setDefaultICDCode(attachmentDTO.getDefaultICDCode());
 
+							 procedureMethod.setProcedureCode(attachmentDTO.getProcedureCode());
 
 							 preAuthDetails.setServiceTypeId(attachmentDTO.getServiceTypeId());
 							 preAuthDetails.setDocumentMasterList(attachmentDTO.getDocumentMasterList());
@@ -265,7 +264,7 @@ public class HcxproviderApplication {
 			else if(resourceType.equalsIgnoreCase("patient")){
                 Patient patient= (Patient) entryComponent.getResource();
 				vhiClaim.setHospitalPatientId(patient.getIdentifier().get(0).getValue());
-				vhiClaim.setDob(String.valueOf(patient.getBirthDate()));
+				vhiClaim.setDob(DateUtils.formatDate(patient.getBirthDate()));
 				vhiClaim.setGender(patient.getGenderElement().getValueAsString());
 				vhiClaim.setPatientName(patient.getName().get(0).getNameAsSingleString());
 				vhiClaim.setPolicyHolderName(patient.getName().get(0).getNameAsSingleString());
@@ -348,15 +347,9 @@ public class HcxproviderApplication {
 				vhiClaim.setMedicalCardId(coverage.getSubscriberId());
 				vhiClaim.setPolicyNumber(coverage.getIdentifier().get(0).getValue());
 				vhiClaim.setPolicyType(PolicyType.valueOf(coverage.getType().getText()));
-				vhiClaim.setPolicyEndDate(String.valueOf(coverage.getPeriod().getEnd()));
+				vhiClaim.setPolicyEndDate(DateUtils.formatDate(coverage.getPeriod().getEnd()));
 				vhiClaim.setPolicyName(coverage.getClass_().get(0).getValue());
-				SimpleDateFormat fhirdateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
-				SimpleDateFormat dateformat = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss a");
-				Date d1 = coverage.getPeriod().getStart();
-				String d = fhirdateformat.format(d1);
-				log.info("Date:"+d);
-                Date d2 = fhirdateformat.parse(d);
-				vhiClaim.setPolicyStartDate(dateformat.format(d2));
+				vhiClaim.setPolicyStartDate(DateUtils.formatDate(coverage.getPeriod().getStart()));
 			}
 
 		}
