@@ -2,6 +2,7 @@ package com.hcx.hcxprovider.service.impl;
 
 import com.hcx.hcxprovider.dto.PreAuthReqDTO;
 import com.hcx.hcxprovider.dto.PreAuthResDTO;
+import com.hcx.hcxprovider.enums.Status;
 import com.hcx.hcxprovider.error.ErrorMessage;
 import com.hcx.hcxprovider.error.ProviderException;
 import com.hcx.hcxprovider.model.PreAuthRequest;
@@ -74,6 +75,7 @@ public class PreAuthServiceImpl implements PreAuthService {
     @Override
    public String savePreAuthRequest( PreAuthRequest preAuthRequest) throws ProviderException {
         try {
+            preAuthRequest.setStatus(String.valueOf(Status.INIATED));
             preAuthRequestRepo.save(preAuthRequest);
         }
         catch (Exception e){
@@ -88,6 +90,13 @@ public class PreAuthServiceImpl implements PreAuthService {
         log.info("preAuthReqDTO {} ",preAuthReqDTO);
         if( preAuthReqDTO!=null) {
             rabbitTemplate.convertAndSend(exchange, reqroutingKey, preAuthReqDTO);
+            try {
+                preAuthRequest.setStatus(String.valueOf(Status.ENQUEUED));
+                preAuthRequestRepo.save(preAuthRequest);
+            }
+            catch (Exception e) {
+                log.error("error in updating the preAuth request", e);
+            }
             return "PreAuth request pushed to Queue";
         }
         else{
@@ -115,12 +124,22 @@ public class PreAuthServiceImpl implements PreAuthService {
         HCXIntegrator.init(setConfig());
         Map<String,Object> output = new HashMap<>();
         Map<String,Object> input = new HashMap<>();
+        Map<String,Object> headers = new HashMap<>();
         input.put("payload",pre);
         HCXIncomingRequest hcxIncomingRequest = new HCXIncomingRequest();
         hcxIncomingRequest.process(JSONUtils.serialize(input),operation,output);
         log.info("Incoming Request: {}",output);
+        headers = (Map<String, Object>) output.get("headers");
+        log.info("headers {}",headers);
+        String correlationId = (String) headers.get("x-hcx-correlation_id");
         String fhirPayload = (String) output.get("fhirPayload");
+        PreAuthRequest preAuthRequest = new PreAuthRequest();
+        preAuthRequest = preAuthRequestRepo.findPreAuthRequestByCorrelationId(correlationId);
         PreAuthResponse preAuthResponse = new PreAuthResponse();
+        if(preAuthRequest.getCorrelationId().equalsIgnoreCase(correlationId)){
+            preAuthRequest.setStatus(String.valueOf(Status.COMPLETED));
+            preAuthRequestRepo.save(preAuthRequest);
+        }
         if(fhirPayload!=null) {
             preAuthResponse.setResponseType("preAuthResponse");
             preAuthResponse.setFhirPayload(fhirPayload);
