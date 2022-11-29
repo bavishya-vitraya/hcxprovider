@@ -2,6 +2,8 @@ package com.hcx.hcxprovider.service.impl;
 
 import com.hcx.hcxprovider.dto.PreAuthReqDTO;
 import com.hcx.hcxprovider.dto.PreAuthResDTO;
+import com.hcx.hcxprovider.error.ErrorMessage;
+import com.hcx.hcxprovider.error.ProviderException;
 import com.hcx.hcxprovider.model.PreAuthRequest;
 import com.hcx.hcxprovider.model.PreAuthResponse;
 import com.hcx.hcxprovider.repository.PreAuthRequestRepo;
@@ -70,8 +72,13 @@ public class PreAuthServiceImpl implements PreAuthService {
     String igUrl;
 
     @Override
-   public String savePreAuthRequest( PreAuthRequest preAuthRequest){
-        preAuthRequestRepo.save(preAuthRequest);
+   public String savePreAuthRequest( PreAuthRequest preAuthRequest) throws ProviderException {
+        try {
+            preAuthRequestRepo.save(preAuthRequest);
+        }
+        catch (Exception e){
+            log.error("error in saving the preAuth request", e);
+        }
         log.info("preAuth  req saved");
         PreAuthReqDTO preAuthReqDTO = new PreAuthReqDTO();
         preAuthReqDTO.setReferenceId(preAuthRequest.getId());
@@ -79,8 +86,14 @@ public class PreAuthServiceImpl implements PreAuthService {
         preAuthReqDTO.setSenderCode(preAuthRequest.getSenderCode());
         preAuthReqDTO.setInsurerCode(preAuthRequest.getInsurerCode());
         log.info("preAuthReqDTO {} ",preAuthReqDTO);
-        rabbitTemplate.convertAndSend(exchange,reqroutingKey,preAuthReqDTO);
-        return "PreAuth request pushed to Queue";
+        if( preAuthReqDTO!=null) {
+            rabbitTemplate.convertAndSend(exchange, reqroutingKey, preAuthReqDTO);
+            return "PreAuth request pushed to Queue";
+        }
+        else{
+            throw new ProviderException(ErrorMessage.REQUEST_NOT_FOUND);
+        }
+
     }
     public Map<String, Object> setConfig() throws IOException {
         Map<String, Object> config = new HashMap<>();
@@ -98,8 +111,6 @@ public class PreAuthServiceImpl implements PreAuthService {
 
     @Override
     public String savePreAuthResponse(String pre) throws Exception {
-        //File payloadFile = new ClassPathResource("input/jwePayload").getFile();
-        //String preAuthRes = FileUtils.readFileToString(payloadFile);
         Operations operation = Operations.PRE_AUTH_ON_SUBMIT;
         HCXIntegrator.init(setConfig());
         Map<String,Object> output = new HashMap<>();
@@ -109,17 +120,26 @@ public class PreAuthServiceImpl implements PreAuthService {
         hcxIncomingRequest.process(JSONUtils.serialize(input),operation,output);
         log.info("Incoming Request: {}",output);
         String fhirPayload = (String) output.get("fhirPayload");
-        PreAuthResponse preAuthResponse=new PreAuthResponse();
-        preAuthResponse.setResponseType("preAuthResponse");
-        preAuthResponse.setFhirPayload(fhirPayload);
-        preAuthResponseRepo.save(preAuthResponse);
-        log.info("PreAuth Response saved");
+        PreAuthResponse preAuthResponse = new PreAuthResponse();
+        if(fhirPayload!=null) {
+            preAuthResponse.setResponseType("preAuthResponse");
+            preAuthResponse.setFhirPayload(fhirPayload);
+            preAuthResponseRepo.save(preAuthResponse);
+            log.info("PreAuth Response saved");
+        }
         PreAuthResDTO preAuthResDTO= new PreAuthResDTO();
         preAuthResDTO.setReferenceId(preAuthResponse.getResponseId());
         preAuthResDTO.setMessageType(preAuthResponse.getResponseType());
         preAuthResDTO.setSenderCode(preAuthResponse.getSenderCode());
         preAuthResDTO.setInsurerCode(preAuthResponse.getInsurerCode());
-        rabbitTemplate.convertAndSend(exchange,resroutingKey,preAuthResDTO);
-        return "PreAuth response pushed to Queue";
+        if(preAuthResDTO!=null) {
+            rabbitTemplate.convertAndSend(exchange, resroutingKey, preAuthResDTO);
+            return "PreAuth response pushed to Queue";
+        }
+        else{
+          throw new ProviderException(ErrorMessage.REQUEST_NOT_FOUND);
+        }
+
+
     }
 }

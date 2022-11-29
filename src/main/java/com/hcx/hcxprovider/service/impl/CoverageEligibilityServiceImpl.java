@@ -1,6 +1,8 @@
 package com.hcx.hcxprovider.service.impl;
 
 import com.hcx.hcxprovider.dto.CoverageEligibilityDTO;
+import com.hcx.hcxprovider.error.ErrorMessage;
+import com.hcx.hcxprovider.error.ProviderException;
 import com.hcx.hcxprovider.model.CoverageEligibilityRequest;
 import com.hcx.hcxprovider.repository.CoverageEligibilityRequestRepo;
 import com.hcx.hcxprovider.service.CoverageEligibilityService;
@@ -28,16 +30,27 @@ public class CoverageEligibilityServiceImpl implements CoverageEligibilityServic
     RabbitTemplate rabbitTemplate;
 
     @Override
-    public String saveCoverageEligibilityRequest(CoverageEligibilityRequest coverageEligibilityRequest){
+    public String saveCoverageEligibilityRequest(CoverageEligibilityRequest coverageEligibilityRequest) throws ProviderException {
 
-        coverageEligibilityRequestRepo.save(coverageEligibilityRequest);
+        try {
+            coverageEligibilityRequestRepo.save(coverageEligibilityRequest);
+        }
+        catch (Exception e){
+            log.error("error in saving the coverage request", e);
+        }
         log.info("Coverage Eligibility Request Saved");
         CoverageEligibilityDTO coverageEligibilityDTO= new CoverageEligibilityDTO();
         coverageEligibilityDTO.setReferenceId(coverageEligibilityRequest.getId());
         coverageEligibilityDTO.setInsurerCode(coverageEligibilityRequest.getInsurerCode());
         coverageEligibilityDTO.setSenderCode(coverageEligibilityRequest.getSenderCode());
         coverageEligibilityDTO.setMessageType(coverageEligibilityRequest.getRequestType());
-        rabbitTemplate.convertAndSend(exchange,reqroutingKey,coverageEligibilityDTO);
-        return "Coverage Eligibility request sent successfully";
+        if(coverageEligibilityDTO !=null) {
+            rabbitTemplate.convertAndSend(exchange, reqroutingKey, coverageEligibilityDTO);
+            return "Coverage Eligibility request sent successfully";
+        }
+       else{
+         throw new ProviderException(ErrorMessage.REQUEST_NOT_FOUND);
+        }
+
     }
 }

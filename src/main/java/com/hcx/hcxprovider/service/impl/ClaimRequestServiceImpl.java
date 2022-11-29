@@ -1,6 +1,8 @@
 package com.hcx.hcxprovider.service.impl;
 
 import com.hcx.hcxprovider.dto.ClaimRequestDTO;
+import com.hcx.hcxprovider.error.ErrorMessage;
+import com.hcx.hcxprovider.error.ProviderException;
 import com.hcx.hcxprovider.model.ClaimRequest;
 import com.hcx.hcxprovider.repository.ClaimRequestRepo;
 import com.hcx.hcxprovider.service.ClaimRequestService;
@@ -30,9 +32,13 @@ public class ClaimRequestServiceImpl implements ClaimRequestService {
     RabbitTemplate rabbitTemplate;
 
     @Override
-    public String saveClaimRequest(ClaimRequest claimRequest) {
-
-        claimRequestRepo.save(claimRequest);
+    public String saveClaimRequest(ClaimRequest claimRequest) throws ProviderException {
+        try {
+            claimRequestRepo.save(claimRequest);
+        }
+        catch(Exception e){
+           log.error("error in saving the claim request", e);
+        }
         log.info("saved claim request");
         ClaimRequestDTO claimRequestDTO = new ClaimRequestDTO();
         claimRequestDTO.setReferenceId(claimRequest.getId());
@@ -40,7 +46,12 @@ public class ClaimRequestServiceImpl implements ClaimRequestService {
         claimRequestDTO.setSenderCode(claimRequest.getSenderCode());
         claimRequestDTO.setInsurerCode(claimRequest.getInsurerCode());
         log.info("Claim Request: {}",claimRequest.getClaimRequest());
-        rabbitTemplate.convertAndSend(exchange,reqroutingKey,claimRequestDTO);
-        return "Claim Request sent successfully";
+        if(claimRequestDTO!=null) {
+            rabbitTemplate.convertAndSend(exchange, reqroutingKey, claimRequestDTO);
+            return "Claim Request sent successfully";
+        }
+        else{
+            throw  new ProviderException(ErrorMessage.REQUEST_NOT_FOUND);
+        }
     }
 }

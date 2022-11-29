@@ -340,7 +340,7 @@ public class HcxproviderApplication {
 			}
 			else if(resourceType.equalsIgnoreCase("Condition")){
                 Condition condition= (Condition) entryComponent.getResource();
-				claimIllnessTreatmentDetails.setDateOfDiagnosis(String.valueOf(condition.getRecordedDate()));
+				claimIllnessTreatmentDetails.setDateOfDiagnosis(DateUtils.formatDate(condition.getRecordedDate()));
 			}
 			else if(resourceType.equalsIgnoreCase("Coverage")){
 				Coverage coverage= (Coverage) entryComponent.getResource();
@@ -362,6 +362,7 @@ public class HcxproviderApplication {
 		preAuthDetails.setIllness(illness);
 		log.info("preAuthDetails{}",new Gson().toJson(preAuthDetails));
 	}
+
 	public static void main(String[] args) throws Exception {
 
 		SpringApplication.run(HcxproviderApplication.class, args);
