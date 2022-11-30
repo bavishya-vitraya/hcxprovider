@@ -1,20 +1,18 @@
 package com.hcx.hcxprovider.controllers;
 
-import com.hcx.hcxprovider.dto.ResponseDTO;
 import com.hcx.hcxprovider.dto.UserRequestDTO;
 import com.hcx.hcxprovider.dto.UserResponseDTO;
 import com.hcx.hcxprovider.model.User;
 import com.hcx.hcxprovider.repository.UserRepo;
-import com.hcx.hcxprovider.service.UserService;
 import com.hcx.hcxprovider.service.impl.UserServiceImpl;
 import com.hcx.hcxprovider.util.JwtUtil;
-import com.sun.net.httpserver.Authenticator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,17 +31,15 @@ public class UserController {
      private JwtUtil jwtUtil;
 
      @Autowired
-     private UserService userService;
-
-    @Autowired
      private UserServiceImpl userServiceImpl;
+
 
      @Autowired
      private AuthenticationManager authenticationManager;
 
     @PostMapping("/addUser")
     public ResponseEntity<String> addNewUser(@RequestBody User user){
-        String id= userService.saveUser(user);
+        String id= userServiceImpl.saveUser(user);
         return  ResponseEntity.ok("User Added"+ id);
     }
 
@@ -51,7 +47,7 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> login(@RequestBody UserRequestDTO userRequestDTO){
 
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userRequestDTO.getUserName(), userRequestDTO.getPassword()));
+        Authentication s =  authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userRequestDTO.getUserName(), userRequestDTO.getPassword()));
         }
         catch(BadCredentialsException e){
            log.error(String.valueOf(e));
