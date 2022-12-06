@@ -161,7 +161,6 @@ public class PreAuthServiceImpl implements PreAuthService {
                 log.error("Error in pushing preAuth response", e);
             }
         }
-
        return null;
 
     }
