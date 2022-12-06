@@ -1,0 +1,166 @@
+{
+    "requestType": "preAuthRequest",
+    "insurerCode": "1-434d79f6-aad8-48bc-b408-980a4dbd90e2",
+    "senderCode": "1-bdaf4872",
+    "preAuthReq": {
+        "claimFlowType": "PRE_AUTH",
+        "serviceTypeId": 70,
+        "claim": {
+            "id": 2940,
+            "creatorId": 67,
+            "deleted": false,
+            "hospitalId": 155,
+            "hospitalPatientId": "1234",
+            "insuranceAgencyId": 2,
+            "createdDate": "Nov 9, 2022 9:46:34 AM",
+            "updatedDate": "Nov 9, 2022 9:46:34 AM",
+            "state": 5,
+            "status": "INTIMATION_AWAITED",
+            "age": 0,
+            "dob": "Jan 6, 1957 12:00:00 AM",
+            "gender": "FEMALE",
+            "medicalCardId": "45688",
+            "patientName": "Senior Citizen testing",
+            "policyHolderName": "Senior citizen testing",
+            "policyNumber": "23456789",
+            "policyType": "INDIVIDUAL",
+            "policyInceptionDate": "Jun 16, 2017 12:00:00 AM",
+            "cityName": "Hyderabad",
+            "policyEndDate": "Jun 15, 2022 12:00:00 AM",
+            "policyName": "SHAHLIP19101V031819",
+            "productCode": "SHAHLIP19101V031819",
+            "policyStartDate": "Jun 16, 2021 12:00:00 AM",
+            "medicalEventId": 2,
+            "patient_mobile_no": "9990909999",
+            "attendent_mobile_no": "9990909999",
+            "patient_email_id": "sample@sample.com"
+        },
+        "claimIllnessTreatmentDetails": {
+            "claimId": 2940,
+            "chronicIllnessDetails": "{\"chronicIllnessList\":[{\"illnessName\":\"dengue\",\"illnessICDCode\":\"MBBS\"}]}",
+            "procedureCorporateMappingId": 39852,
+            "procedureId": 11,
+            "lineOfTreatmentDetails": "Surgical Management",
+            "leftImplant": 0,
+            "rightImplant": 0,
+            "dateOfDiagnosis": "Mar 1, 2022 12:00:00 AM",
+            "doctorsDetails": "[{\"doctorName\":\"Rishi\",\"qualification\":\"MBBS\"}]",
+            "chronicIllnessDetailsJSON": {
+                "chronicIllnessList": [
+                    {
+                        "illnessName": "Coronary Artery Disease",
+                        "illnessIcdCode": "234"
+                    },
+                    {
+                        "illnessName": "Coronary Artery Disease",
+                        "illnessIcdCode": "234"
+                    },
+                    {
+                        "illnessName": "Coronary Artery Disease",
+                        "illnessIcdCode": "233"
+                    },
+                    {
+                        "illnessName": "Coronary Artery Disease",
+                        "illnessIcdCode": "236"
+                    }
+                ]
+            }
+        },
+        "claimAdmissionDetails": {
+            "claimId": 2940,
+            "admissionDate": "Mar 17, 2022 9:47:00 AM",
+            "dischargeDate": "Mar 20, 2022 9:47:00 AM",
+            "roomType": "SEMI PRIVATE WARD-1(E)",
+            "hospitalServiceTypeId": 70,
+            "stayDuration": 3,
+            "costEstimation": "{\"totalCost\":182900,\"estimates\":[{\"costCategory\":2,\"masterCategoryName\":\"Food \\u0026 Beverages\",\"categoryName\":\"Food \\u0026 Beverages\",\"estimateAmount\":5000,\"allowed\":false,\"coveredInPackage\":true,\"ruleMessage\":\"minimum of estimated cost or tariff cost\",\"numberOfUnits\":5,\"defaultRender\":false,\"showSummary\":true,\"considerInTotalStay\":false},{\"costCategory\":9,\"masterCategoryName\":\"Medical Equipment\",\"categoryName\":\"Medical Equipment\",\"estimateAmount\":1200,\"allowed\":false,\"coveredInPackage\":true,\"ruleMessage\":\"minimum of estimated cost or tariff cost\",\"numberOfUnits\":1,\"defaultRender\":false,\"showSummary\":false,\"considerInTotalStay\":false},{\"costCategory\":17,\"masterCategoryName\":\"Ambulance Charges\",\"categoryName\":\"Ambulance Charges\",\"estimateAmount\":2300,\"allowed\":false,\"coveredInPackage\":true,\"ruleMessage\":\"minimum of estimated cost or tariff cost\",\"numberOfUnits\":1,\"defaultRender\":false,\"showSummary\":false,\"considerInTotalStay\":false},{\"costCategory\":14,\"masterCategoryName\":\"Blood \\u0026 Blood Products\",\"categoryName\":\"Blood \\u0026 Blood Products\",\"estimateAmount\":1200,\"allowed\":false,\"coveredInPackage\":true,\"ruleMessage\":\"minimum of estimated cost or tariff cost\",\"numberOfUnits\":1,\"defaultRender\":false,\"showSummary\":false,\"considerInTotalStay\":false},{\"costCategory\":2112,\"masterCategoryName\":\"Additional Package Procedure\",\"categoryName\":\"Coronary Angiogram\",\"estimateAmount\":13200,\"allowed\":false,\"coveredInPackage\":true,\"ruleMessage\":\"minimum of estimated cost or tariff cost\",\"numberOfUnits\":1,\"defaultRender\":false,\"showSummary\":false,\"considerInTotalStay\":false}]}",
+            "packageAmount": 160000,
+            "icuStay": true,
+            "icuStayDuration": 0,
+            "icuServiceTypeId": 0
+        },
+        "hospitalServiceType": {
+            "vitrayaRoomCategory": "SEMI_PRIVATE",
+            "roomType": "SEMI PRIVATE WARD-1(E)",
+            "insurerRoomType": "SHARING / SEMI PRIVATE ROOM NON A/C",
+            "singlePrivateAC": false,
+            "roomTariffPerDay": 4000,
+            "serviceType": "SEMI_PRIVATE"
+        },
+        "procedure": {
+            "description": "Angioplasty",
+            "name": "Angioplasty"
+        },
+        "procedureMethod": {
+            "procedureMethodName": "ANGIOPLASTY (1 vessel)",
+            "procedureCode": "PROC3258"
+        },
+        "documentMasterList": [
+            {
+                "parentTableId": 2940,
+                "documentType": "PROCEDURE DOCUMENT",
+                "fileName": "Pre_Auth_Claim_Form_4057.pdf",
+                "storageFileName": "PROCEDURE_DOCUMENT__10944__Pre_Auth_Claim_Form_4057.pdf",
+                "fileType": "pdf",
+                "fileSupported": true,
+                "note": "null",
+                "documentStatus": 1
+            },
+            {
+                "parentTableId": 2940,
+                "documentType": "PROCEDURE DOCUMENT",
+                "fileName": "Pre_Auth_Claim_Form_4057.pdf",
+                "storageFileName": "PROCEDURE_DOCUMENT__10944__Pre_Auth_Claim_Form_4057.pdf",
+                "fileType": "pdf",
+                "fileSupported": true,
+                "note": "null",
+                "documentStatus": 1
+            },
+            {
+                "parentTableId": 2940,
+                "documentType": "PROCEDURE DOCUMENT",
+                "fileName": "Pre_Auth_Claim_Form_4057.pdf",
+                "storageFileName": "PROCEDURE_DOCUMENT__10944__Pre_Auth_Claim_Form_4057.pdf",
+                "fileType": "pdf",
+                "fileSupported": true,
+                "note": "null",
+                "documentStatus": 1
+            },
+            {
+                "parentTableId": 2940,
+                "documentType": "PROCEDURE DOCUMENT",
+                "fileName": "Pre_Auth_Claim_Form_4057.pdf",
+                "storageFileName": "PROCEDURE_DOCUMENT__10944__Pre_Auth_Claim_Form_4057.pdf",
+                "fileType": "pdf",
+                "fileSupported": true,
+                "note": "null",
+                "documentStatus": 1
+            },
+            {
+                "parentTableId": 2940,
+                "documentType": "PROCEDURE DOCUMENT",
+                "fileName": "Pre_Auth_Claim_Form_4057.pdf",
+                "storageFileName": "PROCEDURE_DOCUMENT__10944__Pre_Auth_Claim_Form_4057.pdf",
+                "fileType": "pdf",
+                "fileSupported": true,
+                "note": "null",
+                "documentStatus": 1
+            },
+            {
+                "parentTableId": 2940,
+                "documentType": "PROCEDURE DOCUMENT",
+                "fileName": "Pre_Auth_Claim_Form_4057.pdf",
+                "storageFileName": "PROCEDURE_DOCUMENT__10944__Pre_Auth_Claim_Form_4057.pdf",
+                "fileType": "pdf",
+                "fileSupported": true,
+                "note": "null",
+                "documentStatus": 1
+            }
+        ],
+        "illness": {
+            "illnessCategoryId": 4,
+            "illnessName": "Coronary Artery Disease",
+            "defaultICDCode": "I24"
+        }
+    }
+}
