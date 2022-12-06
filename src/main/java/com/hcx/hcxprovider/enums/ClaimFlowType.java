@@ -1,4 +1,4 @@
-package com.hcx.hcxprovider.dto;
+package com.hcx.hcxprovider.enums;
 
 public enum ClaimFlowType {
     PRE_AUTH, SETTLEMENT

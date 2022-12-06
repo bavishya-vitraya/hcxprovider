@@ -1,6 +1,7 @@
 package com.hcx.hcxprovider.model;
 
 import com.hcx.hcxprovider.dto.PreAuthDetails;
+import com.hcx.hcxprovider.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ public class PreAuthRequest {
     private String senderCode;
     private String insurerCode;
     private String requestType;
-    private String status;
+    private Status status;
     private String correlationId;
     private PreAuthDetails preAuthReq;
 }

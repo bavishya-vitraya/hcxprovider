@@ -1,8 +1,6 @@
 package com.hcx.hcxprovider.service.impl;
 
 import com.hcx.hcxprovider.dto.ClaimRequestDTO;
-import com.hcx.hcxprovider.error.ErrorMessage;
-import com.hcx.hcxprovider.error.ProviderException;
 import com.hcx.hcxprovider.model.ClaimRequest;
 import com.hcx.hcxprovider.repository.ClaimRequestRepo;
 import com.hcx.hcxprovider.service.ClaimRequestService;
@@ -32,7 +30,7 @@ public class ClaimRequestServiceImpl implements ClaimRequestService {
     RabbitTemplate rabbitTemplate;
 
     @Override
-    public String saveClaimRequest(ClaimRequest claimRequest) throws ProviderException {
+    public String saveClaimRequest(ClaimRequest claimRequest)  {
         try {
             claimRequestRepo.save(claimRequest);
         }
@@ -47,11 +45,14 @@ public class ClaimRequestServiceImpl implements ClaimRequestService {
         claimRequestDTO.setInsurerCode(claimRequest.getInsurerCode());
         log.info("Claim Request: {}",claimRequest.getClaimRequest());
         if(claimRequestDTO!=null) {
-            rabbitTemplate.convertAndSend(exchange, reqroutingKey, claimRequestDTO);
-            return "Claim Request sent successfully";
+            try {
+                rabbitTemplate.convertAndSend(exchange, reqroutingKey, claimRequestDTO);
+                return "Claim Request sent successfully";
+            }
+            catch(Exception e){
+                log.error("Error in pushing claim request");
+            }
         }
-        else{
-            throw  new ProviderException(ErrorMessage.REQUEST_NOT_FOUND);
-        }
+        return null;
     }
 }

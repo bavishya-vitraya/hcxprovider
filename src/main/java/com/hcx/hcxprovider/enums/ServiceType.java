@@ -1,4 +1,4 @@
-package com.hcx.hcxprovider.dto;
+package com.hcx.hcxprovider.enums;
 
 public enum ServiceType {
     GENERAL_WARD,

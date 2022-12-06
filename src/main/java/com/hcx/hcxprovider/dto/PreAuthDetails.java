@@ -1,5 +1,6 @@
 package com.hcx.hcxprovider.dto;
 
+import com.hcx.hcxprovider.enums.ClaimFlowType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

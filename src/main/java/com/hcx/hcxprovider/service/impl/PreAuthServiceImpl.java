@@ -3,8 +3,6 @@ package com.hcx.hcxprovider.service.impl;
 import com.hcx.hcxprovider.dto.PreAuthReqDTO;
 import com.hcx.hcxprovider.dto.PreAuthResDTO;
 import com.hcx.hcxprovider.enums.Status;
-import com.hcx.hcxprovider.error.ErrorMessage;
-import com.hcx.hcxprovider.error.ProviderException;
 import com.hcx.hcxprovider.model.PreAuthRequest;
 import com.hcx.hcxprovider.model.PreAuthResponse;
 import com.hcx.hcxprovider.repository.PreAuthRequestRepo;
@@ -73,9 +71,9 @@ public class PreAuthServiceImpl implements PreAuthService {
     String igUrl;
 
     @Override
-   public String savePreAuthRequest( PreAuthRequest preAuthRequest) throws ProviderException {
+   public String savePreAuthRequest( PreAuthRequest preAuthRequest)  {
         try {
-            preAuthRequest.setStatus(String.valueOf(Status.INIATED));
+            preAuthRequest.setStatus(Status.INIATED);
             preAuthRequestRepo.save(preAuthRequest);
         }
         catch (Exception e){
@@ -91,18 +89,16 @@ public class PreAuthServiceImpl implements PreAuthService {
         if( preAuthReqDTO!=null) {
             rabbitTemplate.convertAndSend(exchange, reqroutingKey, preAuthReqDTO);
             try {
-                preAuthRequest.setStatus(String.valueOf(Status.ENQUEUED));
+                preAuthRequest.setStatus(Status.ENQUEUED);
                 preAuthRequestRepo.save(preAuthRequest);
             }
             catch (Exception e) {
                 log.error("error in updating the preAuth request", e);
             }
-            return "PreAuth request pushed to Queue";
-        }
-        else{
-            throw new ProviderException(ErrorMessage.REQUEST_NOT_FOUND);
+
         }
 
+        return "PreAuth request pushed to Queue";
     }
     public Map<String, Object> setConfig() throws IOException {
         Map<String, Object> config = new HashMap<>();
@@ -124,7 +120,7 @@ public class PreAuthServiceImpl implements PreAuthService {
         HCXIntegrator.init(setConfig());
         Map<String,Object> output = new HashMap<>();
         Map<String,Object> input = new HashMap<>();
-        Map<String,Object> headers = new HashMap<>();
+        Map<String,Object> headers;
         input.put("payload",pre);
         HCXIncomingRequest hcxIncomingRequest = new HCXIncomingRequest();
         hcxIncomingRequest.process(JSONUtils.serialize(input),operation,output);
@@ -134,10 +130,15 @@ public class PreAuthServiceImpl implements PreAuthService {
         String correlationId = (String) headers.get("x-hcx-correlation_id");
         String fhirPayload = (String) output.get("fhirPayload");
         PreAuthRequest preAuthRequest = new PreAuthRequest();
-        preAuthRequest = preAuthRequestRepo.findPreAuthRequestByCorrelationId(correlationId);
+        try {
+            preAuthRequest = preAuthRequestRepo.findPreAuthRequestByCorrelationId(correlationId);
+        }
+        catch(Exception e){
+            log.error("Error in fetching preAuthRequest",e);
+        }
         PreAuthResponse preAuthResponse = new PreAuthResponse();
         if(preAuthRequest.getCorrelationId().equalsIgnoreCase(correlationId)){
-            preAuthRequest.setStatus(String.valueOf(Status.COMPLETED));
+            preAuthRequest.setStatus(Status.COMPLETED);
             preAuthRequestRepo.save(preAuthRequest);
         }
         if(fhirPayload!=null) {
@@ -152,13 +153,16 @@ public class PreAuthServiceImpl implements PreAuthService {
         preAuthResDTO.setSenderCode(preAuthResponse.getSenderCode());
         preAuthResDTO.setInsurerCode(preAuthResponse.getInsurerCode());
         if(preAuthResDTO!=null) {
-            rabbitTemplate.convertAndSend(exchange, resroutingKey, preAuthResDTO);
-            return "PreAuth response pushed to Queue";
-        }
-        else{
-          throw new ProviderException(ErrorMessage.REQUEST_NOT_FOUND);
+            try {
+                rabbitTemplate.convertAndSend(exchange, resroutingKey, preAuthResDTO);
+                return "PreAuth response pushed to Queue";
+            }
+            catch(Exception e){
+                log.error("Error in pushing preAuth response", e);
+            }
         }
 
+       return null;
 
     }
 }

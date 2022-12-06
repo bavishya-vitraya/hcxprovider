@@ -1,8 +1,6 @@
 package com.hcx.hcxprovider.service.impl;
 
 import com.hcx.hcxprovider.dto.CoverageEligibilityDTO;
-import com.hcx.hcxprovider.error.ErrorMessage;
-import com.hcx.hcxprovider.error.ProviderException;
 import com.hcx.hcxprovider.model.CoverageEligibilityRequest;
 import com.hcx.hcxprovider.repository.CoverageEligibilityRequestRepo;
 import com.hcx.hcxprovider.service.CoverageEligibilityService;
@@ -30,7 +28,7 @@ public class CoverageEligibilityServiceImpl implements CoverageEligibilityServic
     RabbitTemplate rabbitTemplate;
 
     @Override
-    public String saveCoverageEligibilityRequest(CoverageEligibilityRequest coverageEligibilityRequest) throws ProviderException {
+    public String saveCoverageEligibilityRequest(CoverageEligibilityRequest coverageEligibilityRequest)  {
 
         try {
             coverageEligibilityRequestRepo.save(coverageEligibilityRequest);
@@ -45,12 +43,15 @@ public class CoverageEligibilityServiceImpl implements CoverageEligibilityServic
         coverageEligibilityDTO.setSenderCode(coverageEligibilityRequest.getSenderCode());
         coverageEligibilityDTO.setMessageType(coverageEligibilityRequest.getRequestType());
         if(coverageEligibilityDTO !=null) {
-            rabbitTemplate.convertAndSend(exchange, reqroutingKey, coverageEligibilityDTO);
-            return "Coverage Eligibility request sent successfully";
+            try {
+                rabbitTemplate.convertAndSend(exchange, reqroutingKey, coverageEligibilityDTO);
+                return "Coverage Eligibility request sent successfully";
+            }
+            catch(Exception e){
+                log.error("Error in pushing coverage request");
+            }
         }
-       else{
-         throw new ProviderException(ErrorMessage.REQUEST_NOT_FOUND);
-        }
+       return null;
 
     }
 }

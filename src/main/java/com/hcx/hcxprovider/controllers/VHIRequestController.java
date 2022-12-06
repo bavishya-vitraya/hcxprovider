@@ -1,6 +1,5 @@
 package com.hcx.hcxprovider.controllers;
 
-import com.hcx.hcxprovider.error.ProviderException;
 import com.hcx.hcxprovider.model.ClaimRequest;
 import com.hcx.hcxprovider.model.CoverageEligibilityRequest;
 import com.hcx.hcxprovider.model.PreAuthRequest;
@@ -27,20 +26,20 @@ public class VHIRequestController {
     ClaimRequestService claimRequestService;
 
     @PostMapping(value = "/savePreAuthReq")
-    public String savePreAuthRequest(@RequestBody PreAuthRequest preAuthRequest) throws ProviderException {
+    public String savePreAuthRequest(@RequestBody PreAuthRequest preAuthRequest)  {
         log.info("Entered Save PreAuth Controller");
         return preAuthService.savePreAuthRequest(preAuthRequest);
 
     }
 
     @PostMapping(value = "/saveCoverageEligibility")
-    public String saveCoverageEligibilityRequest(@RequestBody CoverageEligibilityRequest coverageEligibilityRequest) throws ProviderException {
+    public String saveCoverageEligibilityRequest(@RequestBody CoverageEligibilityRequest coverageEligibilityRequest) {
         log.info("Entered Save CoverageEligibility Controller");
         return coverageEligibilityService.saveCoverageEligibilityRequest(coverageEligibilityRequest);
     }
 
     @PostMapping(value = "/saveClaimRequest")
-    public String saveClaimRequest(@RequestBody ClaimRequest claimRequest) throws ProviderException {
+    public String saveClaimRequest(@RequestBody ClaimRequest claimRequest)  {
         log.info("Entered Save ClaimRequest Controller");
         return claimRequestService.saveClaimRequest(claimRequest);
     }
