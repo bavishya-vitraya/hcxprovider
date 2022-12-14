@@ -17,6 +17,6 @@ public class HcxproviderApplication {
 	}
 	@GetMapping("/")
 	public ResponseEntity<String> checkHcxProvider() {
-		return  ResponseEntity.ok("Test Connection");
+		return  ResponseEntity.ok("Test provider application");
 	}
 }
