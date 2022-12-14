@@ -2,7 +2,9 @@ package com.hcx.hcxprovider.service.impl;
 
 import com.hcx.hcxprovider.dto.PreAuthReqDTO;
 import com.hcx.hcxprovider.dto.PreAuthResDTO;
+import com.hcx.hcxprovider.enums.ErrorMessage;
 import com.hcx.hcxprovider.enums.Status;
+import com.hcx.hcxprovider.error.ProviderException;
 import com.hcx.hcxprovider.model.PreAuthRequest;
 import com.hcx.hcxprovider.model.PreAuthResponse;
 import com.hcx.hcxprovider.repository.PreAuthRequestRepo;
@@ -136,30 +138,37 @@ public class PreAuthServiceImpl implements PreAuthService {
         catch(Exception e){
             log.error("Error in fetching preAuthRequest",e);
         }
-        PreAuthResponse preAuthResponse = new PreAuthResponse();
-        if(preAuthRequest.getCorrelationId().equalsIgnoreCase(correlationId)){
-            preAuthRequest.setStatus(Status.COMPLETED);
-            preAuthRequestRepo.save(preAuthRequest);
-        }
-        if(fhirPayload!=null) {
-            preAuthResponse.setResponseType("preAuthResponse");
-            preAuthResponse.setFhirPayload(fhirPayload);
-            preAuthResponseRepo.save(preAuthResponse);
-            log.info("PreAuth Response saved");
-        }
-        PreAuthResDTO preAuthResDTO= new PreAuthResDTO();
-        preAuthResDTO.setReferenceId(preAuthResponse.getResponseId());
-        preAuthResDTO.setMessageType(preAuthResponse.getResponseType());
-        preAuthResDTO.setSenderCode(preAuthResponse.getSenderCode());
-        preAuthResDTO.setInsurerCode(preAuthResponse.getInsurerCode());
-        if(preAuthResDTO!=null) {
-            try {
-                rabbitTemplate.convertAndSend(exchange, resroutingKey, preAuthResDTO);
-                return "PreAuth response pushed to Queue";
+        if(preAuthRequest!=null) {
+            PreAuthResponse preAuthResponse = new PreAuthResponse();
+            if (preAuthRequest.getCorrelationId().equalsIgnoreCase(correlationId)) {
+                preAuthRequest.setStatus(Status.COMPLETED);
+                preAuthRequestRepo.save(preAuthRequest);
             }
-            catch(Exception e){
-                log.error("Error in pushing preAuth response", e);
+            if (fhirPayload != null) {
+                preAuthResponse.setResponseType("preAuthResponse");
+                preAuthResponse.setFhirPayload(fhirPayload);
+                preAuthResponseRepo.save(preAuthResponse);
+                log.info("PreAuth Response saved");
             }
+            PreAuthResDTO preAuthResDTO = new PreAuthResDTO();
+            preAuthResDTO.setReferenceId(preAuthResponse.getResponseId());
+            preAuthResDTO.setMessageType(preAuthResponse.getResponseType());
+            preAuthResDTO.setSenderCode(preAuthResponse.getSenderCode());
+            preAuthResDTO.setInsurerCode(preAuthResponse.getInsurerCode());
+            if (preAuthResDTO != null) {
+                try {
+                    rabbitTemplate.convertAndSend(exchange, resroutingKey, preAuthResDTO);
+                    return "PreAuth response pushed to Queue";
+                } catch (Exception e) {
+                  log.error(e.getMessage());
+                }
+            }
+            else{
+                throw new ProviderException(ErrorMessage.RABBITMQ_ERROR);
+            }
+        }
+        else{
+            throw new ProviderException(ErrorMessage.RESOURCE_NOT_FOUND);
         }
        return null;
     }
