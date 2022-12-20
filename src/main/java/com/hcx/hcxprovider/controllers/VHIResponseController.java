@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/hcxProvider/response")
+@RequestMapping("/response")
 public class VHIResponseController {
 
     @Autowired
